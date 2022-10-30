@@ -5,11 +5,6 @@ from dateutil.parser import parse
 import sqlite3 as sl
 from config import db
 from dict_to_object import AttrDict
-from platform import uname
-
-
-def in_wsl() -> bool:
-    return 'microsoft-standard' in uname().release
 
 
 def get_debts_by_product(account_id):
