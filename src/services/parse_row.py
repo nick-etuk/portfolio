@@ -15,27 +15,11 @@ def parse_row(account_id, run_id, timestamp, filename):
         html = BeautifulSoup(fp, 'html.parser')
 
     sql = """
-    select product_id, descr as product, chain, project, html_label
+    select product_id, descr as product, chain, project, html_label, html_table_columns
     from product
     where data_source='HTML'
     """
-    old_sql = """
-    select p.product_id, p.descr as product, p.chain, p.project, p.html_label
-    ac.account_id
-    from actual_total tot
-    inner join product p
-    on p.product_id=tot.product_id
-    inner join account ac
-    on ac.account_id=tot.account_id
-    where tot.seq=
-        (select max(seq) from actual_total
-        where product_id=tot.product_id
-                and account_id=tot.account_id)
-        
-    and tot.status='A'
-    and p.data_source='HTML'
-    and ac.account_id=?
-    """
+
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
@@ -43,7 +27,7 @@ def parse_row(account_id, run_id, timestamp, filename):
 
     for row in rows:
         amount = find_product(html=html, prod_descr=row.product,
-                              chain=row.chain, project=row.project, prod_label=row.html_label)
+                              chain=row.chain, project=row.project, prod_label=row.html_label, html_table_coloumns=row.html_table_columns)
         if amount:
             sql = """
             insert into actual_total (product_id, account_id, run_id, timestamp, amount, status)

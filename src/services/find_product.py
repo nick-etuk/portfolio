@@ -4,7 +4,7 @@ from init import log
 from utils import first_number
 
 
-def find_product(html, prod_descr, chain, project, prod_label):
+def find_product(html, prod_descr, chain, project, prod_label, html_table_coloumns):
 
     def subtotal(project, product):
         div = html.find("div", class_=re.compile("HeaderInfo_totalAsset.*"))
@@ -151,26 +151,50 @@ def find_product(html, prod_descr, chain, project, prod_label):
         result = div4.text
         return result
 
+    def liquidity_pool_n_col(cols, project, product):
+        div1 = html.find("div", id=project)
+        if not div1:
+            return ""
+        row = div1.find_next(
+            "div", class_=re.compile('table_contentRow.*'))
+
+        next_col = row.find_next("div")
+        print('col1:', next_col)
+        for col in range(2, cols+1):
+            next_col = next_col.find_next_sibling("div")
+            print(f"col{col}: {next_col}")
+
+        if not next_col:
+            return ""
+        result = next_col.text
+        return result
+
     def liquidity_pool_5_col(project, product):
+        return liquidity_pool_n_col(5, project, product)
+
+    def liquidity_pool_3_col(project, product):
+        return liquidity_pool_n_col(3, project, product)
+
+    def z_liquidity_pool_5_col(project, product):
         div1 = html.find("div", id=project)
         if not div1:
             return ""
         row = div1.find_next(
             "div", class_=re.compile('table_contentRow.*'))
         col1 = row.find_next("div")
-        #print('col1:', col1)
+        print('col1:', col1)
 
         col2 = col1.find_next_sibling("div")
-        #print('col2:', col2)
+        print('col2:', col2)
 
         col3 = col2.find_next_sibling("div")
-        #print('col3:', col3)
+        print('col3:', col3)
 
         col4 = col3.find_next_sibling("div")
-        #print('col4:', col4)
+        print('col4:', col4)
 
         col5 = col4.find_next_sibling("div")
-        #print('col5:', col5)
+        print('col5:', col5)
 
         if not col5:
             return ""
@@ -198,11 +222,20 @@ def find_product(html, prod_descr, chain, project, prod_label):
         'Yearn DAI': yearn_dai,
         'Beefy Babyswap USDT BUSD': beefy_baby_usdt,
         'Stargate USDT': liquidity_pool_4_col,
-        'Curve aave': liquidity_pool_5_col
+        'Curve aave': liquidity_pool_5_col,
+        'TETU USDC': liquidity_pool_3_col,
+        'Penrose DAI': liquidity_pool_5_col,
+        'Dystopia DAI': liquidity_pool_3_col,
     }
 
     project_label = chain + '_' + project
-    result = prod_search[prod_descr](project=project_label, product=prod_label)
+    if html_table_coloumns:
+        result = liquidity_pool_n_col(
+            cols=html_table_coloumns, project=project_label, product=prod_label)
+    else:
+        result = prod_search[prod_descr](
+            project=project_label, product=prod_label)
+
     amount = ""
     if result:
         amount = first_number(result.replace("$", "").replace(",", ""))

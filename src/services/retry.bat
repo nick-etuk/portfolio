@@ -1,3 +1,3 @@
-E:
-cd "\Google Drive\asterlan sync\portfolio\src\services\fetch_html"
-.venv\Scripts\python.exe fetch_html_selenium.py retry
+G:
+cd "\local_only\repos\portfolio"
+.venv\Scripts\python.exe src\services\fetch_html_selenium.py retry
