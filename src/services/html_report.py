@@ -4,6 +4,7 @@ from changes import report_changes
 from config import html_file
 from init import current_logfile, init
 from lib import get_last_run_id
+from risks import check_risks
 from totals import show_totals
 from targets import targets
 
@@ -24,6 +25,8 @@ def create_html_report(changes, totals, targets):
         <P>Changes</p>
         {changes_table}
         <br>
+        {risk_violations}
+        <br>
         <P>Totals</p>
         {totals_table}
         <br>   
@@ -40,10 +43,11 @@ def create_html_report(changes, totals, targets):
 
     changes_html = tabulate(changes, tablefmt="html", headers=[
                             'Account', 'Product', 'Amount', 'Change'])
-    totals_html = tabulate(totals, tablefmt="html", headers=['Account', 'Product', 'Amount', 'Change', 'Week', 'Month']
+    totals_html = tabulate(totals, tablefmt="html", headers=['Account', 'Product', 'Amount', 'Risk', 'Chain', 'Change', 'Week', 'Month']
                            )
     targets_html = tabulate(targets, tablefmt="html", headers=['Account', 'Invested', 'Expected', 'Current', 'Shortfall']
                             )
+    risk_violations = check_risks()
 
     with open(current_logfile(), 'r') as f:
         log_messages = f.read()
@@ -52,6 +56,7 @@ def create_html_report(changes, totals, targets):
     html = html_template.replace('{{', '{')
     html = html.replace('}}', '}')
     html = html.replace('{changes_table}', changes_html)
+    html = html.replace('{risk_violations}', risk_violations)
     html = html.replace('{totals_table}', totals_html)
     html = html.replace('{targets_table}', targets_html)
     html = html.replace('{log_messages}', log_messages)

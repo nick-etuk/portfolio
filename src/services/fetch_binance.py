@@ -6,7 +6,7 @@ from init import init
 from icecream import ic
 
 
-def binance_balance(account_id, product):
+def binance_balance(account_id, product_id, product):
 
     asset_lookup = {'Binance Earn BUSD': 'BUSD', 'Binance Earn BNB': 'BNB'}
     client = Spot(key=binance_api_key, secret=binance_api_secret)
@@ -16,7 +16,7 @@ def binance_balance(account_id, product):
         if position['asset'] == asset_lookup[product]:
             total += float(position['amountInUSDT'])
 
-    return total
+    return {'price': 0, 'units': 0, 'value': round(total)}
 
 
 if __name__ == "__main__":

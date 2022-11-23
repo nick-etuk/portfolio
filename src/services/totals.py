@@ -16,10 +16,12 @@ def get_products(run_id, timestamp, account_id, account, mode):
     cash_filter = "and p.cash='Y'" if mode == "cash" else ""
 
     sql = f"""
-    select act.product_id, p.descr as product, sum(act.amount) as amount
+    select act.product_id, p.descr as product, risk.risk_level_descr, p.chain, sum(act.amount) as amount
     from actual_total act
     inner join product p
     on p.product_id=act.product_id
+    inner join risk_category risk
+    on risk.id = p.risk_category
     where act.account_id=?
     and act.status='A'
     and p.subtotal='N'
@@ -69,9 +71,17 @@ def get_products(run_id, timestamp, account_id, account, mode):
                                         previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
         result_dict.append(
-            {product.product: {'amount': round(amount, 0), 'change': change, 'week': weekly_change, 'month': monthly_change}})
+            {product.product: {
+                'amount': round(amount, 0),
+                'risk': product.risk_level_descr,
+                'chain': product.chain,
+                'change': change,
+                'week': weekly_change,
+                'month': monthly_change
+            }
+            })
         result_table.append([account, product.product, round(
-            amount, 0), change, weekly_change, monthly_change])
+            amount, 0), product.risk_level_descr, product.chain, change, weekly_change, monthly_change])
         total += amount
 
     return total, result_dict, result_table
@@ -211,4 +221,4 @@ if __name__ == "__main__":
     init()
     result = show_totals("total")
     # show_totals("cash")
-    # ic(result)
+    print(result)
