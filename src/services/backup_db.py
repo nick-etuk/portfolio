@@ -11,6 +11,6 @@ destination = "C:\\Users\\Nick\\OneDrive\\bak"
 
 shutil.copyfile(db, os.path.join(destination, new_file_name))
 
-db2 = "G:\\data\\serious_kid\\serious_kid.db"
+db2 = "C:\Users\\Nick\\OneDrive\\data\\serious_kid\\serious_kid.db"
 new_file_name2 = f"serious_kid_{timestamp_str}.db"
 shutil.copyfile(db2, os.path.join(destination, new_file_name2))

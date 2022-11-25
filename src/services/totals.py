@@ -25,6 +25,7 @@ def get_products(run_id, timestamp, account_id, account, mode):
     where act.account_id=?
     and act.status='A'
     and p.subtotal='N'
+    and act.dummy = 'N'
     {cash_filter}
     and act.seq=
         (select max(seq) from actual_total
