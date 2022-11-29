@@ -57,8 +57,8 @@ def fetch_api(run_id, timestamp):
 
                     change = ''
                     if previous:
-                        change = change_str(amount=result['value'], timestamp=timestamp,
-                                            previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+                        change, apr = change_str(amount=result['value'], timestamp=timestamp,
+                                                 previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
                 log(
                     f"{row.data_source} {row.account} {row.product}: {round(result['value'])}  {change}")

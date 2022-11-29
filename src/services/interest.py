@@ -30,8 +30,8 @@ def get_prevous_by_timestamp(current_seq, account_id, account, product_id, produ
     if not previous:
         return
 
-    change = change_str(amount=current_amount, timestamp=current_timestamp,
-                        previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+    change, apr = change_str(amount=current_amount, timestamp=current_timestamp,
+                             previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
     if change:
         timestamp = parse(current_timestamp)

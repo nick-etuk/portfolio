@@ -51,15 +51,15 @@ def get_products(run_id, timestamp, account_id, account, mode):
         previous = previous_values_by_run_id(
             run_id=run_id, account_id=account_id, product_id=product.product_id)
         if previous:
-            change = change_str(amount=amount, timestamp=timestamp,
-                                previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            change, apr = change_str(amount=amount, timestamp=timestamp,
+                                     previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
         weekly_change = ""
         previous = previous_values_days_ago(
             account_id=account_id, product_id=product.product_id, days=7)
         if previous:
-            weekly_change = change_str(amount=amount, timestamp=timestamp,
-                                       previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            weekly_change, apr = change_str(amount=amount, timestamp=timestamp,
+                                            previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
         monthly_change = ""
         previous = previous_values_days_ago(
@@ -68,8 +68,8 @@ def get_products(run_id, timestamp, account_id, account, mode):
             previous = first_entry(
                 account_id=account_id, product_id=product.product_id)
         if previous:
-            monthly_change = change_str(amount=amount, timestamp=timestamp,
-                                        previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            monthly_change, apr = change_str(amount=amount, timestamp=timestamp,
+                                             previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
         result_dict.append(
             {product.product: {

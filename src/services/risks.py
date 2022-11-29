@@ -23,14 +23,15 @@ from risk_product_too_high_risk import product_too_high_risk
 from risk_high_risk_products import high_risk_products
 from risk_medium_risk_products import medium_risk_products
 from risk_auto_funds_managers import auto_fund_managers
+from risk_interest_rate_too_high import interest_rate_too_high
 
 
 def to_html(violations):
-    output = f"<h2 style='color:red'>Risk Violations</h2>"
+    output = f"<h2 style='color:red'>Risks</h2>"
     for violation in violations:
         output += f"<h2>{violation['descr']}</h2>"
         for instance in violation['instances']:
-            output += f"<p>{instance}</p>"
+            output += f"<div>{instance}</div>"
 
     return output
 
@@ -43,19 +44,22 @@ def check_risks():
     rules = [
         {
             'rule_id': 1,
-            'descr': rf"No more than 10% (6500 - should be {round(combined_total * 0.1)}) in a single product, regardless of risk.",
+            # 'descr': rf"No more than 10% ({round(combined_total * 0.1)}) in a single product, regardless of risk.",
+            'descr': rf"No more than 6500 in a single product, regardless of risk.",
             'function': medium_risk_products
 
         },
         {
             'rule_id': 2,
-            'descr': rf"No more than 20% (should be {round(combined_total * 0.4)} - manually set to 13K) with one fund manager.",
+            # 'descr': rf"No more than 20% ({round(combined_total * 0.4)}) with one automated fund manager.",
+            'descr': rf"No more than 13K with one automated fund manager.",
             'function': auto_fund_managers
 
         },
         {
             'rule_id': 3,
-            'descr': rf"No more than 5% (should be {round(combined_total * 0.05)} - manually set to 850) in a high risk product.",
+            # 'descr': rf"No more than 5% (should be {round(combined_total * 0.05)} - manually set to 850) in a high risk product.",
+            'descr': rf"No more than 850 in one high risk product.",
             'function': high_risk_products
 
         },
@@ -63,6 +67,11 @@ def check_risks():
             'rule_id': 4,
             'descr': rf"Product too high risk for account",
             'function': product_too_high_risk
+        },
+        {
+            'rule_id': 5,
+            'descr': rf"Very high interest rate. Could be risky.",
+            'function': interest_rate_too_high
         }
     ]
 

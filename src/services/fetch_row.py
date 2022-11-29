@@ -74,8 +74,8 @@ def fetch_row(param_row, run_id, queue_id, driver, run_mode):
         log(msg[:130])
         status = 'ERROR'
 
-    change = change_str(amount=new_total, timestamp=timestamp_str2,
-                        previous_amount=last_total, previous_timestamp=last_run.timestamp)
+    change, apr = change_str(amount=new_total, timestamp=timestamp_str2,
+                             previous_amount=last_total, previous_timestamp=last_run.timestamp)
     log(
         f"Status: {status}. New total {round(new_total)}, last total {last_total}")
 

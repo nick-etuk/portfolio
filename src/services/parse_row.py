@@ -44,7 +44,7 @@ def parse_row(account_id, run_id, timestamp, filename):
             previous = previous_values_by_seq(
                 seq=seq, account_id=account_id, product_id=row.product_id)
             if previous:
-                change = change_str(amount=amount, timestamp=timestamp,
-                                    previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+                change, apr = change_str(amount=amount, timestamp=timestamp,
+                                         previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
             log(f"{row.product} {round(amount)} {change}")

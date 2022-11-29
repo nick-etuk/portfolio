@@ -34,7 +34,7 @@ def change_str(amount, timestamp, previous_amount, previous_timestamp):
         if apr > 0.1:
             change_str += "  " + "{:.0f}".format(apr) + "%  " + days_str
 
-    return change_str
+    return change_str, apr
 
 
 def get_products(run_id, account_id, account):
@@ -67,8 +67,8 @@ def get_products(run_id, account_id, account):
             run_id=run_id, account_id=account_id, product_id=product.product_id)
 
         if previous:
-            change = change_str(amount=amount, timestamp=product.timestamp,
-                                previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            change, apr = change_str(amount=amount, timestamp=product.timestamp,
+                                     previous_amount=previous.amount, previous_timestamp=previous.timestamp)
 
         if change:
             print(account, product.product, amount, change)
@@ -79,7 +79,8 @@ def get_products(run_id, account_id, account):
                     product.product:
                     {
                         "amount": amount,
-                        "change": change
+                        "change": change,
+                        "apr": apr
                     }
                 }
             )
@@ -131,12 +132,13 @@ def report_changes(run_id: int = 0):
     if not run_id:
         run_id, timestamp = get_last_run_id()
     result = get_accounts(run_id)
+    ic(result)
     return table
 
 
 if __name__ == "__main__":
     init()
-    result = report_changes()
+    print(report_changes())
     # ic(result)
 
     # print(round(0.97, 1))
