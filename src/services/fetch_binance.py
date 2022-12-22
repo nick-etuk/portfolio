@@ -21,4 +21,4 @@ def binance_balance(account_id, product_id, product):
 
 if __name__ == "__main__":
     init()
-    print(binance_balance())
+    print(binance_balance(0, 0, 'BUSD'))

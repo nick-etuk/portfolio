@@ -13,7 +13,7 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 
 
-def get_price(symbol: str):
+def call_cmc_api(symbols: str):
     '''
     url = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
         parameters = {
@@ -25,7 +25,7 @@ def get_price(symbol: str):
     url = 'https://pro-api.coinmarketcap.com/'
     endpoint = 'v2/cryptocurrency/quotes/latest'
     parameters = {
-        'symbol': symbol,
+        'symbol': symbols,
         'convert': 'USD'
     }
     headers = {
@@ -39,13 +39,41 @@ def get_price(symbol: str):
     price = 0
     try:
         response = session.get(url+endpoint, params=parameters)
-        data = json.loads(response.text)
-        price = data['data'][symbol][0]['quote']['USD']['price']
-        price = float(price)
+        return json.loads(response.text)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
 
+
+def get_price(symbol: str):
+    response = call_cmc_api(symbol)
+    if 'data' not in response:
+        print(f"No CMC API data for {symbol}")
+        return 0
+    price_data = response['data'][symbol.upper()]
+    # ic(price_data)
+    if price_data:
+        price_str = price_data[0]['quote']['USD']['price']
+        price = float(price_str)
+
     return price
+
+
+def get_multiple_prices(symbols: str):
+    result = {}
+    response = call_cmc_api(symbols)
+    # ic(response)
+    if 'data' not in response:
+        print(f"No CMC API data for {symbols}")
+        return {}
+    for symbol in symbols.split(','):
+        price_data = response['data'][symbol]
+        # ic(price_data)
+        if price_data:
+            price_str = price_data[0]['quote']['USD']['price']
+            price = float(price_str)
+            result[symbol] = price
+
+    return result
 
 
 def cmc_get_value(account_id, product_id, product):

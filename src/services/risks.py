@@ -6,6 +6,7 @@ from dateutil.parser import parse
 from icecream import ic
 from tabulate import tabulate
 from init import init, log
+from risk_ip_address_changed import ip_address_changed
 from totals import get_totals
 import pandas as pd
 
@@ -41,42 +42,47 @@ def check_risks():
         "total")
     print('Combined total is', round(combined_total))
 
-    rules = [
+    rule_factory = [
         {
             'rule_id': 1,
             # 'descr': rf"No more than 10% ({round(combined_total * 0.1)}) in a single product, regardless of risk.",
-            'descr': rf"No more than 6500 in a single product, regardless of risk.",
+            'descr': "No more than 6500 in a single product, regardless of risk.",
             'function': medium_risk_products
 
         },
         {
             'rule_id': 2,
             # 'descr': rf"No more than 20% ({round(combined_total * 0.4)}) with one automated fund manager.",
-            'descr': rf"No more than 13K with one automated fund manager.",
+            'descr': "No more than 13K with one automated fund manager.",
             'function': auto_fund_managers
 
         },
         {
             'rule_id': 3,
-            # 'descr': rf"No more than 5% (should be {round(combined_total * 0.05)} - manually set to 850) in a high risk product.",
-            'descr': rf"No more than 850 in one high risk product.",
+            # 'descr': f"No more than 5% (should be {round(combined_total * 0.05)} - manually set to 850) in a high risk product.",
+            'descr': "No more than 850 in one high risk product.",
             'function': high_risk_products
 
         },
         {
             'rule_id': 4,
-            'descr': rf"Product too high risk for account",
+            'descr': "Product too high risk for account",
             'function': product_too_high_risk
         },
         {
             'rule_id': 5,
-            'descr': rf"Very high interest rate. Could be risky.",
+            'descr': f"Very high interest rate. Could be risky.",
             'function': interest_rate_too_high
+        },
+        {
+            'rule_id': 6,
+            'descr': "Current IP address not in Binance API whitelist",
+            'function': ip_address_changed
         }
     ]
 
     result = []
-    for rule in rules:
+    for rule in rule_factory:
         instances = rule['function'](combined_total)
         if instances:
             result.append({**rule, 'instances': instances})

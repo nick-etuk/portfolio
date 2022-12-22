@@ -1,14 +1,10 @@
-from datetime import datetime
 import os
 from init import init, log
 import sys
-from bs4 import BeautifulSoup
-import re
 import sqlite3 as sl
 from config import db, html_dir
 
 from lib import named_tuple_factory
-import utils
 from parse_row import parse_row
 
 

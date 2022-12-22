@@ -8,6 +8,7 @@ import sqlite3 as sl
 from config import db, html_dir, log_dir, log_file
 from fetch_api import fetch_api
 from html_report import create_html_report
+from cash_balances import get_cash_balances
 from targets import targets
 from lib import named_tuple_factory, max_queue_id
 from init import init, log, current_logfile
@@ -107,7 +108,7 @@ if __name__ == "__main__":
         run_mode = "normal"
     else:
         run_mode = sys.argv[1]
-
+    #run_mode = "retry"
     init()
     run_id, timestamp = next_run_id(run_mode)
     log(f"Run mode:{run_mode}, run_id:{run_id}")
@@ -120,9 +121,10 @@ if __name__ == "__main__":
     changes = report_changes(run_id)
     totals = show_totals("total")
     targets = targets()
+    cash_balances = get_cash_balances()
 
     html_file = create_html_report(
-        changes=changes, totals=totals, targets=targets)
+        changes=changes, totals=totals, targets=targets, cash_balances=cash_balances)
 
     #subprocess.Popen([r"F:\app\Notepad++\notepad++.exe", current_logfile()])
     subprocess.Popen(

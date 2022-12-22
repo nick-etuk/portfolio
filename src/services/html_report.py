@@ -7,9 +7,10 @@ from lib import get_last_run_id
 from risks import check_risks
 from totals import show_totals
 from targets import targets
+from cash_balances import get_cash_balances
 
 
-def create_html_report(changes, totals, targets):
+def create_html_report(changes, totals, targets, cash_balances):
     print("totals table 2:", totals)
 
     simple_html = """
@@ -22,15 +23,18 @@ def create_html_report(changes, totals, targets):
         </style>
     </head>
     <body style="font:san-serif">
-        <P>Changes</p>
+        <h2>Changes</h2>
         {changes_table}
         <br>
         {risk_violations}
         <br>
-        <P>Totals</p>
+        <h2>Cash</h2>
+        {cash_balances}
+        <br>
+        <h2>Totals</h2>
         {totals_table}
         <br>   
-        <P>Targets</p>
+        <h2>Targets</h2>
         {targets_table}
         <br>        
         <P>Logs</p>
@@ -49,6 +53,9 @@ def create_html_report(changes, totals, targets):
                             )
     risk_violations = check_risks()
 
+    cash_html = tabulate(cash_balances, tablefmt="html", headers=[
+                         'Account', 'Chain', 'Symbol', 'Value'])
+
     with open(current_logfile(), 'r') as f:
         log_messages = f.read()
 
@@ -57,6 +64,7 @@ def create_html_report(changes, totals, targets):
     html = html.replace('}}', '}')
     html = html.replace('{changes_table}', changes_html)
     html = html.replace('{risk_violations}', risk_violations)
+    html = html.replace('{cash_balances}', cash_html)
     html = html.replace('{totals_table}', totals_html)
     html = html.replace('{targets_table}', targets_html)
     html = html.replace('{log_messages}', log_messages)
@@ -75,9 +83,9 @@ if __name__ == "__main__":
     print("totals table 0b:", totals_table, "\n")
     targets_table = targets()
     print("totals table 1:", totals_table, "\n")
-
+    cash_balances = get_cash_balances()
     html_file = create_html_report(
-        changes=changes_table, totals=totals_table, targets=targets_table)
+        changes=changes_table, totals=totals_table, targets=targets_table, cash_balances=cash_balances)
 
     subprocess.Popen(
         [r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
