@@ -1,0 +1,6 @@
+README.md
+setup.py
+Portfolio_tracker_for_crypto_assets.egg-info/PKG-INFO
+Portfolio_tracker_for_crypto_assets.egg-info/SOURCES.txt
+Portfolio_tracker_for_crypto_assets.egg-info/dependency_links.txt
+Portfolio_tracker_for_crypto_assets.egg-info/top_level.txt
