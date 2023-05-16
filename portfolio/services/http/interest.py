@@ -1,5 +1,4 @@
-
-from portfolio.calculations.changes import change_str
+from portfolio.calc.changes import change_str
 from portfolio.utils.lib import named_tuple_factory, previous_values_days_ago
 import sqlite3 as sl
 from portfolio.utils.config import db
@@ -8,7 +7,15 @@ from icecream import ic
 from portfolio.utils.init import init, log
 
 
-def get_prevous_by_timestamp(current_seq, account_id, account, product_id, product, current_amount, current_timestamp):
+def get_prevous_by_timestamp(
+    current_seq,
+    account_id,
+    account,
+    product_id,
+    product,
+    current_amount,
+    current_timestamp,
+):
     sql = """
     select seq, timestamp, amount
     from actual_total act
@@ -24,14 +31,19 @@ def get_prevous_by_timestamp(current_seq, account_id, account, product_id, produ
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        previous = c.execute(sql, (account_id,
-                                   product_id, current_timestamp)).fetchone()
+        previous = c.execute(
+            sql, (account_id, product_id, current_timestamp)
+        ).fetchone()
 
     if not previous:
         return
 
-    change, apr = change_str(amount=current_amount, timestamp=current_timestamp,
-                             previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+    change, apr = change_str(
+        amount=current_amount,
+        timestamp=current_timestamp,
+        previous_amount=previous.amount,
+        previous_timestamp=previous.timestamp,
+    )
 
     if change:
         timestamp = parse(current_timestamp)
@@ -39,8 +51,15 @@ def get_prevous_by_timestamp(current_seq, account_id, account, product_id, produ
 
         print(f"{formatted_timestamp} {account} {product} {current_amount} {change}")
 
-    get_prevous_by_timestamp(current_seq=previous.seq, account_id=account_id, account=account, product_id=product_id,
-                             product=product, current_amount=previous.amount, current_timestamp=previous.timestamp)
+    get_prevous_by_timestamp(
+        current_seq=previous.seq,
+        account_id=account_id,
+        account=account,
+        product_id=product_id,
+        product=product,
+        current_amount=previous.amount,
+        current_timestamp=previous.timestamp,
+    )
 
 
 def get_account_product():
@@ -68,10 +87,17 @@ def get_account_product():
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        get_prevous_by_timestamp(current_seq=row.seq, account_id=row.account_id, account=row.account,
-                                 product_id=row.product_id, product=row.product, current_amount=row.amount, current_timestamp=row.timestamp)
+        get_prevous_by_timestamp(
+            current_seq=row.seq,
+            account_id=row.account_id,
+            account=row.account,
+            product_id=row.product_id,
+            product=row.product,
+            current_amount=row.amount,
+            current_timestamp=row.timestamp,
+        )
 
-    '''
+    """
     accounts_result = {}
     for account in rows:
         products_result = {}
@@ -82,7 +108,7 @@ def get_account_product():
     accounts_result = {run_id: products_result}
 
     return accounts_result
-    '''
+    """
 
 
 def interest_rate_history():

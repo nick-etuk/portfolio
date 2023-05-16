@@ -1,11 +1,17 @@
 import numpy as np
 from portfolio.utils.init import init, log
-from portfolio.utils.lib import named_tuple_factory, previous_values_by_run_id, previous_values_days_ago, first_entry, get_debts_by_product
+from portfolio.utils.lib import (
+    named_tuple_factory,
+    previous_values_by_run_id,
+    previous_values_days_ago,
+    first_entry,
+    get_debts_by_product,
+)
 import sqlite3 as sl
 from portfolio.utils.config import db
 from dateutil.parser import parse
 from icecream import ic
-from portfolio.calculations.changes import get_last_run_id, change_str
+from portfolio.calc.changes import get_last_run_id, change_str
 
 # table = []
 
@@ -49,40 +55,66 @@ def get_products(run_id, timestamp, account_id, account, mode):
 
         change = ""
         previous = previous_values_by_run_id(
-            run_id=run_id, account_id=account_id, product_id=product.product_id)
+            run_id=run_id, account_id=account_id, product_id=product.product_id
+        )
         if previous:
-            change, apr = change_str(amount=amount, timestamp=timestamp,
-                                     previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            change, apr = change_str(
+                amount=amount,
+                timestamp=timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
+            )
 
         weekly_change = ""
         previous = previous_values_days_ago(
-            account_id=account_id, product_id=product.product_id, days=7)
+            account_id=account_id, product_id=product.product_id, days=7
+        )
         if previous:
-            weekly_change, apr = change_str(amount=amount, timestamp=timestamp,
-                                            previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            weekly_change, apr = change_str(
+                amount=amount,
+                timestamp=timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
+            )
 
         monthly_change = ""
         previous = previous_values_days_ago(
-            account_id=account_id, product_id=product.product_id, days=30)
+            account_id=account_id, product_id=product.product_id, days=30
+        )
         if not previous:
-            previous = first_entry(
-                account_id=account_id, product_id=product.product_id)
+            previous = first_entry(account_id=account_id, product_id=product.product_id)
         if previous:
-            monthly_change, apr = change_str(amount=amount, timestamp=timestamp,
-                                             previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            monthly_change, apr = change_str(
+                amount=amount,
+                timestamp=timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
+            )
 
         result_dict.append(
-            {product.product: {
-                'amount': round(amount, 0),
-                'risk': product.risk_level_descr,
-                'chain': product.chain,
-                'change': change,
-                'week': weekly_change,
-                'month': monthly_change
+            {
+                product.product: {
+                    "amount": round(amount, 0),
+                    "risk": product.risk_level_descr,
+                    "chain": product.chain,
+                    "change": change,
+                    "week": weekly_change,
+                    "month": monthly_change,
+                }
             }
-            })
-        result_table.append([account, product.product, round(
-            amount, 0), product.risk_level_descr, product.chain, change, weekly_change, monthly_change])
+        )
+        result_table.append(
+            [
+                account,
+                product.product,
+                round(amount, 0),
+                product.risk_level_descr,
+                product.chain,
+                change,
+                weekly_change,
+                monthly_change,
+            ]
+        )
         total += amount
 
     return total, result_dict, result_table
@@ -108,10 +140,18 @@ def get_assets(account):
     result_table = []
 
     for loan in rows:
-        results.append({'Loan to '+loan.borrower: round(loan.amount, 0)})
+        results.append({"Loan to " + loan.borrower: round(loan.amount, 0)})
         total += loan.amount
-        result_table.append([account.account, 'Loan to '+loan.borrower, round(
-            loan.amount, 0), '', '', ''])
+        result_table.append(
+            [
+                account.account,
+                "Loan to " + loan.borrower,
+                round(loan.amount, 0),
+                "",
+                "",
+                "",
+            ]
+        )
 
     return total, results, result_table
 
@@ -134,7 +174,7 @@ def get_debts(account):
 
     results = []
     for loan in rows:
-        results.append({'Owed to '+loan.lender: round(loan.amount, 0)})
+        results.append({"Owed to " + loan.lender: round(loan.amount, 0)})
         total += loan.amount
 
     return total, results
@@ -171,7 +211,12 @@ def get_totals(mode: str, account_id: int = 0):
         total = 0
 
         prod_total, products, prod_rows = get_products(
-            run_id=run_id, timestamp=timestamp, account_id=account.account_id, account=account.account, mode=mode)
+            run_id=run_id,
+            timestamp=timestamp,
+            account_id=account.account_id,
+            account=account.account,
+            mode=mode,
+        )
         if products:
             # result_list.append(products)
             for item in products:
@@ -194,26 +239,31 @@ def get_totals(mode: str, account_id: int = 0):
                 total -= debt_total
 
         if not total == 0:
-            result_list.append({'Total': round(total, 0)})
+            result_list.append({"Total": round(total, 0)})
 
         if result_list:
             result_dict[account.account] = result_list
 
-        if account.account.startswith('Solomon'):
+        if account.account.startswith("Solomon"):
             solomon_total += total
         else:
             personal_total += total
 
-    return round(solomon_total+personal_total, 0), round(solomon_total, 0), round(personal_total, 0), result_dict, result_table
+    return (
+        round(solomon_total + personal_total, 0),
+        round(solomon_total, 0),
+        round(personal_total, 0),
+        result_dict,
+        result_table,
+    )
 
 
 def show_totals(mode):
-    total, solomon_total, personal_total, result_dict, result_table = get_totals(
-        mode)
+    total, solomon_total, personal_total, result_dict, result_table = get_totals(mode)
     log(f"Solomon {mode}: {solomon_total}")
     log(f"Personal {mode}: {personal_total}")
     log(f"Combined {mode}: {total}")
-    #print('totals table 0:', result_table, "\n")
+    # print('totals table 0:', result_table, "\n")
     return result_table
     # return np.sort(table, axis=0)
 

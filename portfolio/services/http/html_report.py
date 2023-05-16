@@ -1,9 +1,9 @@
 import subprocess
 from tabulate import tabulate
-from portfolio.calculations import targets
-from portfolio.calculations.cash_balances import get_cash_balances
-from portfolio.calculations.changes import report_changes
-from portfolio.calculations.totals import show_totals
+from portfolio.calc import targets
+from portfolio.calc.cash_balances import get_cash_balances
+from portfolio.calc.changes import report_changes
+from portfolio.calc.totals import show_totals
 from portfolio.utils.config import html_file
 from portfolio.utils.init import current_logfile, init
 from portfolio.utils.lib import get_last_run_id
@@ -45,31 +45,48 @@ def create_html_report(changes, totals, targets, cash_balances):
     """
     html_template = simple_html
 
-    changes_html = tabulate(changes, tablefmt="html", headers=[
-                            'Account', 'Product', 'Amount', 'Change'])
-    totals_html = tabulate(totals, tablefmt="html", headers=['Account', 'Product', 'Amount', 'Risk', 'Chain', 'Change', 'Week', 'Month']
-                           )
-    targets_html = tabulate(targets, tablefmt="html", headers=['Account', 'Invested', 'Expected', 'Current', 'Shortfall']
-                            )
+    changes_html = tabulate(
+        changes, tablefmt="html", headers=["Account", "Product", "Amount", "Change"]
+    )
+    totals_html = tabulate(
+        totals,
+        tablefmt="html",
+        headers=[
+            "Account",
+            "Product",
+            "Amount",
+            "Risk",
+            "Chain",
+            "Change",
+            "Week",
+            "Month",
+        ],
+    )
+    targets_html = tabulate(
+        targets,
+        tablefmt="html",
+        headers=["Account", "Invested", "Expected", "Current", "Shortfall"],
+    )
     risk_violations = check_risks()
 
-    cash_html = tabulate(cash_balances, tablefmt="html", headers=[
-                         'Account', 'Chain', 'Symbol', 'Value'])
+    cash_html = tabulate(
+        cash_balances, tablefmt="html", headers=["Account", "Chain", "Symbol", "Value"]
+    )
 
-    with open(current_logfile(), 'r') as f:
+    with open(current_logfile(), "r") as f:
         log_messages = f.read()
 
     log_messages = log_messages.replace("\n", "<br>")
-    html = html_template.replace('{{', '{')
-    html = html.replace('}}', '}')
-    html = html.replace('{changes_table}', changes_html)
-    html = html.replace('{risk_violations}', risk_violations)
-    html = html.replace('{cash_balances}', cash_html)
-    html = html.replace('{totals_table}', totals_html)
-    html = html.replace('{targets_table}', targets_html)
-    html = html.replace('{log_messages}', log_messages)
+    html = html_template.replace("{{", "{")
+    html = html.replace("}}", "}")
+    html = html.replace("{changes_table}", changes_html)
+    html = html.replace("{risk_violations}", risk_violations)
+    html = html.replace("{cash_balances}", cash_html)
+    html = html.replace("{totals_table}", totals_html)
+    html = html.replace("{targets_table}", targets_html)
+    html = html.replace("{log_messages}", log_messages)
 
-    with open(html_file, 'w') as f:
+    with open(html_file, "w") as f:
         f.write(html)
 
     return html_file
@@ -85,7 +102,10 @@ if __name__ == "__main__":
     print("totals table 1:", totals_table, "\n")
     cash_balances = get_cash_balances()
     html_file = create_html_report(
-        changes=changes_table, totals=totals_table, targets=targets_table, cash_balances=cash_balances)
+        changes=changes_table,
+        totals=totals_table,
+        targets=targets_table,
+        cash_balances=cash_balances,
+    )
 
-    subprocess.Popen(
-        [r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
+    subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])

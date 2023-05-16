@@ -10,14 +10,14 @@ from dateutil.parser import parse
 from icecream import ic
 from tabulate import tabulate
 from portfolio.utils.init import init, log
-from portfolio.calculations.totals import get_totals
+from portfolio.calc.totals import get_totals
 import pandas as pd
 
 table = []
 
 
 def accrued_amount(principal: float, rate: float, days: float):
-    result = principal*(1 + rate*(days/365)/100)
+    result = principal * (1 + rate * (days / 365) / 100)
     # print(f"principal: {principal}, rate: {rate}, days: {days}. Accrued = {result} ")
     return result
 
@@ -41,7 +41,7 @@ def get_targets(account_id):
         prev_timestamp = parse(funding_row.date)
         delta = current_timestamp - prev_timestamp
         seconds = delta.total_seconds()
-        days = seconds/60/60/24
+        days = seconds / 60 / 60 / 24
 
         sql = """
         select target_rate 
@@ -55,7 +55,8 @@ def get_targets(account_id):
 
         target_rate = rate_row.target_rate
         target_amount = accrued_amount(
-            principal=funding_row.amount_usd, rate=target_rate, days=days)
+            principal=funding_row.amount_usd, rate=target_rate, days=days
+        )
 
         total_principal += funding_row.amount_usd
         total_accrued += target_amount
@@ -77,10 +78,22 @@ def get_target_accounts():
 
     for row in rows:
         principal, accrued = get_targets(row.account_id)
-        current_value, solomon_total, personal_total, details, totals_table = get_totals(
-            "total", row.account_id)
-        table.append([row.account, principal, round(accrued),
-                     round(current_value), round(accrued-current_value)])
+        (
+            current_value,
+            solomon_total,
+            personal_total,
+            details,
+            totals_table,
+        ) = get_totals("total", row.account_id)
+        table.append(
+            [
+                row.account,
+                principal,
+                round(accrued),
+                round(current_value),
+                round(accrued - current_value),
+            ]
+        )
         # print(f"{row.account} -  \t\t\t Invested:{principal}, \t\t expected: {round(accrued)} current: {round(current_value)}, shortfall: {round(accrued-current_value)}")
 
     return table
@@ -88,12 +101,12 @@ def get_target_accounts():
 
 def targets():
     result = get_target_accounts()
-    #r2 = np.sort(result, axis=0)
+    # r2 = np.sort(result, axis=0)
     return result
 
 
 if __name__ == "__main__":
-    #solomon_total, personal_total, details = get_totals("total")
+    # solomon_total, personal_total, details = get_totals("total")
     # log(tabulate(details, headers="firstrow"))
     init()
     result = targets()

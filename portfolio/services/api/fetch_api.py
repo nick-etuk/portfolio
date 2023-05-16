@@ -1,9 +1,15 @@
 import sqlite3 as sl
-from portfolio.calculations.changes import change_str
+from portfolio.calc.changes import change_str
 from portfolio.utils.config import db
-from portfolio.utils.lib import get_last_run_id, get_last_seq, named_tuple_factory, previous_values_by_run_id
+from portfolio.utils.lib import (
+    get_last_run_id,
+    get_last_seq,
+    named_tuple_factory,
+    previous_values_by_run_id,
+)
 from portfolio.utils.init import init, log
-#from changes import change_str, get_last_run_id
+
+# from changes import change_str, get_last_run_id
 from portfolio.services.api.ftx import ftx_balance
 from portfolio.services.api.binance import binance_balance
 from portfolio.services.api.coin_market_cap import cmc_get_value
@@ -29,21 +35,24 @@ def fetch_api(run_id, timestamp):
         """
     api = {
         # 'FTX_API': ftx_balance,
-        'BINANCE_API': binance_balance,
-        'CMC': cmc_get_value}
+        "BINANCE_API": binance_balance,
+        "CMC": cmc_get_value,
+    }
 
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
         rows = c.execute(sql).fetchall()
-        log('log test')
+        log("log test")
 
         for row in rows:
             log(
-                f"data source, account, product: {row.data_source} {row.account} {row.product}")
+                f"data source, account, product: {row.data_source} {row.account} {row.product}"
+            )
             try:
                 result = api[row.data_source](
-                    row.account_id, row.product_id, row.product)
+                    row.account_id, row.product_id, row.product
+                )
                 if result:
                     sql = """
                     insert into actual_total (product_id, account_id, run_id, timestamp, amount, units, price, status, dummy)
@@ -52,21 +61,41 @@ def fetch_api(run_id, timestamp):
                     with sl.connect(db) as conn:
                         conn.row_factory = named_tuple_factory
                         c = conn.cursor()
-                        c.execute(sql, (row.product_id, row.account_id,
-                                  run_id, timestamp, result['value'], result['units'], result['price'], 'A', row.dummy))
+                        c.execute(
+                            sql,
+                            (
+                                row.product_id,
+                                row.account_id,
+                                run_id,
+                                timestamp,
+                                result["value"],
+                                result["units"],
+                                result["price"],
+                                "A",
+                                row.dummy,
+                            ),
+                        )
 
                     # seq, discard_me = get_last_seq()
 
-                    previous = previous_values_by_run_id(run_id=run_id,
-                                                         account_id=row.account_id, product_id=row.product_id)
+                    previous = previous_values_by_run_id(
+                        run_id=run_id,
+                        account_id=row.account_id,
+                        product_id=row.product_id,
+                    )
 
-                    change = ''
+                    change = ""
                     if previous:
-                        change, apr = change_str(amount=result['value'], timestamp=timestamp,
-                                                 previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+                        change, apr = change_str(
+                            amount=result["value"],
+                            timestamp=timestamp,
+                            previous_amount=previous.amount,
+                            previous_timestamp=previous.timestamp,
+                        )
 
                 log(
-                    f"{row.data_source} {row.account} {row.product}: {round(result['value'])}  {change}")
+                    f"{row.data_source} {row.account} {row.product}: {round(result['value'])}  {change}"
+                )
             except Exception as e:
                 msg = f"{e}"
                 print(msg)

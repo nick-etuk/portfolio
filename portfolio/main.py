@@ -4,10 +4,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import sqlite3 as sl
 from icecream import ic
-from portfolio.calculations.cash_balances import get_cash_balances
-from portfolio.calculations.totals import show_totals
-from portfolio.calculations.changes import report_changes
-from portfolio.calculations.targets import targets
+from portfolio.calc.cash_balances import get_cash_balances
+from portfolio.calc.totals import show_totals
+from portfolio.calc.changes import report_changes
+from portfolio.calc.targets import targets
 from portfolio.services.api.fetch_api import fetch_api
 from portfolio.services.http.fetch_row import fetch_row
 from portfolio.services.http.html_report import create_html_report
@@ -82,14 +82,15 @@ def fetch_html(run_id, timestamp, run_mode):
                 with sl.connect(db) as conn:
                     conn.row_factory = named_tuple_factory
                     c = conn.cursor()
-                    c.execute(sql, (run_id, row.account_id,
-                                    " ", 0, 0, "FETCHING", None))
+                    c.execute(
+                        sql, (run_id, row.account_id, " ", 0, 0, "FETCHING", None)
+                    )
                 queue_id = max_queue_id()
 
             # driver = webdriver.Chrome(options=chrome_options, service_args=["--verbose", f"--log-path={log_dir}"])
             driver = webdriver.Chrome(options=chrome_options)
             status = fetch_row(row, run_id, queue_id, driver, run_mode)
-            if status == 'ERROR':
+            if status == "ERROR":
                 error_found = True
 
             driver.close()
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         run_mode = "normal"
     else:
         run_mode = sys.argv[1]
-    #run_mode = "retry"
+    # run_mode = "retry"
     init()
     run_id, timestamp = next_run_id(run_mode)
     log(f"Run mode:{run_mode}, run_id:{run_id}")
@@ -119,11 +120,11 @@ if __name__ == "__main__":
     cash_balances = get_cash_balances()
 
     html_file = create_html_report(
-        changes=changes, totals=totals, targets=targets, cash_balances=cash_balances)
+        changes=changes, totals=totals, targets=targets, cash_balances=cash_balances
+    )
 
-    #subprocess.Popen([r"F:\app\Notepad++\notepad++.exe", current_logfile()])
-    subprocess.Popen(
-        [r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
+    # subprocess.Popen([r"F:\app\Notepad++\notepad++.exe", current_logfile()])
+    subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
 
-    if status == 'ERROR':
+    if status == "ERROR":
         sys.exit(1)

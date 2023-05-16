@@ -4,7 +4,7 @@ import sqlite3 as sl
 from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from portfolio.calculations.changes import change_str
+from portfolio.calc.changes import change_str
 
 from portfolio.utils.config import db, html_dir, html_url
 from portfolio.utils.lib import named_tuple_factory
@@ -41,7 +41,7 @@ def fetch_row(param_row, run_id, queue_id, driver, run_mode):
     sleep_time = 30 if run_mode in ["reload", "retry"] else 15
 
     new_total = 0
-    status = 'PARSING'
+    status = "PARSING"
     try:
         driver.get(url)
         # refresh_element = WebDriverWait(driver, timeout=30).until(lambda d: d.find_element(By.CLASS_NAME, "UpdateButton_updateTimeNumber__XnaER"))
@@ -49,35 +49,40 @@ def fetch_row(param_row, run_id, queue_id, driver, run_mode):
         sleep(sleep_time)
 
         refresh_element = driver.find_element(
-            By.CSS_SELECTOR, "[class*='UpdateButton_updateTimeNumber']")
+            By.CSS_SELECTOR, "[class*='UpdateButton_updateTimeNumber']"
+        )
         # driver.find_element(By.CLASS_NAME, "UpdateButton_updateTimeNumber__2afUS")
         refresh_text = refresh_element.text
-        #log(f"Refresh button text: {refresh_text}")
+        # log(f"Refresh button text: {refresh_text}")
 
         total_div = driver.find_element(
-            By.CSS_SELECTOR, "[class*='HeaderInfo_totalAsset']")
+            By.CSS_SELECTOR, "[class*='HeaderInfo_totalAsset']"
+        )
         # driver.find_element(By.CLASS_NAME, "HeaderInfo_totalAsset__3PC8b")
         total_text = total_div.text
         total_text = total_text.replace("$", "").replace(",", "")
         new_total = float(first_number(total_text))
 
         if (new_total + new_total * 0.2) < last_total:
-            status = 'INVALID'
+            status = "INVALID"
 
-        if run_mode in ["reload", "retry"] or status == 'INVALID':
-            driver.save_screenshot(os.path.join(html_dir, filename+".png"))
+        if run_mode in ["reload", "retry"] or status == "INVALID":
+            driver.save_screenshot(os.path.join(html_dir, filename + ".png"))
 
     except Exception as e:
         msg = f"{e}"
         print(msg)
         # print full message to stdout, write truncated version to log
         log(msg[:130])
-        status = 'ERROR'
+        status = "ERROR"
 
-    change, apr = change_str(amount=new_total, timestamp=timestamp_str2,
-                             previous_amount=last_total, previous_timestamp=last_run.timestamp)
-    log(
-        f"Status: {status}. New total {round(new_total)}, last total {last_total}")
+    change, apr = change_str(
+        amount=new_total,
+        timestamp=timestamp_str2,
+        previous_amount=last_total,
+        previous_timestamp=last_run.timestamp,
+    )
+    log(f"Status: {status}. New total {round(new_total)}, last total {last_total}")
 
     sql = """
     update html_parse_queue
@@ -91,11 +96,13 @@ def fetch_row(param_row, run_id, queue_id, driver, run_mode):
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        c.execute(sql, (filename+".html", last_total,
-                  new_total, status, timestamp, queue_id))
+        c.execute(
+            sql,
+            (filename + ".html", last_total, new_total, status, timestamp, queue_id),
+        )
 
     page_source = driver.page_source
-    with open(os.path.join(html_dir, filename+".html"), "w") as f:
+    with open(os.path.join(html_dir, filename + ".html"), "w") as f:
         f.write(page_source)
 
     return status
