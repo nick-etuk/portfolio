@@ -1,7 +1,6 @@
 import subprocess
 import sys
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+
 import sqlite3 as sl
 from icecream import ic
 from portfolio.calc.cash_balances import get_cash_balances
@@ -9,10 +8,10 @@ from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
 from portfolio.calc.targets import targets
 from portfolio.services.api.fetch_api import fetch_api
-from portfolio.services.http.fetch_row import fetch_row
+
+from portfolio.services.http.fetch_row_cypress import fetch_row
 from portfolio.services.http.html_report import create_html_report
 from portfolio.services.http.parse_html import parse_html
-from portfolio.utils import utils
 
 from portfolio.utils.init import init, log
 from portfolio.utils.lib import max_queue_id, named_tuple_factory
@@ -57,12 +56,6 @@ def fetch_html(run_id, timestamp, run_mode):
         """
         args = ()
 
-    chrome_options = Options()
-    if not run_mode in ["reload", "retry", "normal"]:
-        chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-gpu")
-
     error_found = False
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
@@ -87,14 +80,9 @@ def fetch_html(run_id, timestamp, run_mode):
                     )
                 queue_id = max_queue_id()
 
-            # driver = webdriver.Chrome(options=chrome_options, service_args=["--verbose", f"--log-path={log_dir}"])
-            driver = webdriver.Chrome(options=chrome_options)
-            status = fetch_row(row, run_id, queue_id, driver, run_mode)
+            status = fetch_row(row, run_id, queue_id, run_mode)
             if status == "ERROR":
                 error_found = True
-
-            driver.close()
-            utils.pause()
 
     return "ERROR" if error_found else "PARSING"
 
@@ -112,6 +100,7 @@ if __name__ == "__main__":
     fetch_api(run_id, timestamp)
 
     status = fetch_html(run_id, timestamp, run_mode)
+    sys.exit(0)
     parse_html(run_mode)
 
     changes = report_changes(run_id)
