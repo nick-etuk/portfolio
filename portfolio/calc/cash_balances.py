@@ -3,7 +3,7 @@ import json
 import os
 import sqlite3 as sl
 from icecream import ic
-from portfolio.utils.config import db, html_dir
+from portfolio.utils.config import db, raw_html_dir
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.bitquery import get_wallet_balances
 from portfolio.services.api.coin_market_cap import get_multiple_prices
@@ -12,9 +12,9 @@ result = []
 
 
 def get_cash_balances():
-    chains = ['ethereum', 'bsc', 'matic', 'fantom', 'avalanche', 'moonbeam']
+    chains = ["ethereum", "bsc", "matic", "fantom", "avalanche", "moonbeam"]
     # Exclude shit coins with same symbol as legitimate coins
-    exclusion_list = ['BUSDSWAP.NET']
+    exclusion_list = ["BUSDSWAP.NET"]
     symbols = []
     amounts = {}
 
@@ -36,32 +36,38 @@ def get_cash_balances():
         timestamp_str = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
         filename = f"{row.account}_{timestamp_str}.json"
         # filename = "Old Personal Medium_2022-12-01_10_47_22.json"
-        # with open(os.path.join(html_dir, filename), 'r') as f:
+        # with open(os.path.join(raw_html_dir, filename), 'r') as f:
         #   response = json.load(f)
 
-        with open(os.path.join(html_dir, filename), 'w') as f:
+        with open(os.path.join(raw_html_dir, filename), "w") as f:
             f.write(json.dumps(response))
+
         for chain in chains:
             amounts[row.account][chain] = {}
-            address_list = response['data'][chain + '_network']['address']
+            address_list = response["data"][chain + "_network"]["address"]
             for address_item in address_list:
-                balance_list = address_item['balances']
+                balance_list = address_item["balances"]
                 if balance_list:
                     for balance_object in balance_list:
-                        name = balance_object['currency']['name']
+                        name = balance_object["currency"]["name"]
                         if name in exclusion_list:
-                            print(f'Excluding {name}')
+                            print(f"Excluding {name}")
                             continue
-                        amount = balance_object['value']
-                        symbol = balance_object['currency']['symbol'].upper()
-                        if float(amount) != 0 and not ' ' in symbol and not '.' in symbol and not '-' in symbol:
+                        amount = balance_object["value"]
+                        symbol = balance_object["currency"]["symbol"].upper()
+                        if (
+                            float(amount) != 0
+                            and not " " in symbol
+                            and not "." in symbol
+                            and not "-" in symbol
+                        ):
                             amounts[row.account][chain][symbol] = amount
                             if symbol not in symbols:
                                 symbols.append(symbol)
 
     if not symbols:
         return []
-    symbols_str = ','.join(symbols)
+    symbols_str = ",".join(symbols)
     prices = get_multiple_prices(symbols_str)
     # ic(symbols_str)
     # ic(prices)
@@ -78,11 +84,10 @@ def get_cash_balances():
                 value = prices[symbol] * amount
 
                 if value > 10:
-                    print(
-                        f"{account} {chain} {symbol} {value}")
+                    print(f"{account} {chain} {symbol} {value}")
                     result.append([account, chain, symbol, round(value)])
 
-    print('cash balances:', result)
+    print("cash balances:", result)
     return result
 
 

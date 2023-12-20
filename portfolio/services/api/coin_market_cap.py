@@ -1,5 +1,5 @@
 import sqlite3 as sl
-from portfolio.utils.config import db, html_dir
+from portfolio.utils.config import db, output_dir
 
 from portfolio.utils.lib import named_tuple_factory
 
@@ -14,23 +14,20 @@ import json
 
 
 def call_cmc_api(symbols: str):
-    '''
+    """
     url = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
         parameters = {
         'start': '1',
         'limit': '5000',
         'convert': coin
     }
-    '''
-    url = 'https://pro-api.coinmarketcap.com/'
-    endpoint = 'v2/cryptocurrency/quotes/latest'
-    parameters = {
-        'symbol': symbols,
-        'convert': 'USD'
-    }
+    """
+    url = "https://pro-api.coinmarketcap.com/"
+    endpoint = "v2/cryptocurrency/quotes/latest"
+    parameters = {"symbol": symbols, "convert": "USD"}
     headers = {
-        'Accepts': 'application/json',
-        'X-CMC_PRO_API_KEY': cmc_api_key,
+        "Accepts": "application/json",
+        "X-CMC_PRO_API_KEY": cmc_api_key,
     }
 
     session = Session()
@@ -38,7 +35,7 @@ def call_cmc_api(symbols: str):
 
     price = 0
     try:
-        response = session.get(url+endpoint, params=parameters)
+        response = session.get(url + endpoint, params=parameters)
         return json.loads(response.text)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
@@ -46,13 +43,13 @@ def call_cmc_api(symbols: str):
 
 def get_price(symbol: str):
     response = call_cmc_api(symbol)
-    if 'data' not in response:
+    if "data" not in response:
         print(f"No CMC API data for {symbol}")
         return 0
-    price_data = response['data'][symbol.upper()]
+    price_data = response["data"][symbol.upper()]
     # ic(price_data)
     if price_data:
-        price_str = price_data[0]['quote']['USD']['price']
+        price_str = price_data[0]["quote"]["USD"]["price"]
         price = float(price_str)
 
     return price
@@ -62,22 +59,21 @@ def get_multiple_prices(symbols: str):
     result = {}
     response = call_cmc_api(symbols)
     # ic(response)
-    if 'data' not in response:
+    if "data" not in response:
         print(f"No CMC API data for {symbols}")
         return {}
-    for symbol in symbols.split(','):
-        price_data = response['data'][symbol]
+    for symbol in symbols.split(","):
+        price_data = response["data"][symbol]
         # ic(price_data)
         if price_data:
-            price_str = price_data[0]['quote']['USD']['price']
-            price = float(price_str)
+            price_str = price_data[0]["quote"]["USD"]["price"]
+            price = float(price_str) if price_str else 0
             result[symbol] = price
 
     return result
 
 
 def cmc_get_value(account_id, product_id, product):
-
     price = get_price(product_id)
 
     sql = """
@@ -96,20 +92,26 @@ def cmc_get_value(account_id, product_id, product):
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        row = c.execute(sql, (account_id, product_id,)).fetchone()
+        row = c.execute(
+            sql,
+            (
+                account_id,
+                product_id,
+            ),
+        ).fetchone()
 
         if row:
             units = row.units
 
     return {
-        'price': round(price, 1),
-        'units': round(units, 1),
-        'value': round(price*float(units))
+        "price": round(price, 1),
+        "units": round(units, 1),
+        "value": round(price * float(units)),
     }
 
 
 if __name__ == "__main__":
     init()
-    print(cmc_get_value(account_id=1, product_id='STG', product=''))
-    #print(cmc_get_value(account_id=2, product_id='GHNY', product=''))
-    #print(cmc_get_value(account_id=6, product_id='FTT', product=''))
+    print(cmc_get_value(account_id=1, product_id="STG", product=""))
+    # print(cmc_get_value(account_id=2, product_id='GHNY', product=''))
+    # print(cmc_get_value(account_id=6, product_id='FTT', product=''))

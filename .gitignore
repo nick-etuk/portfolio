@@ -90,3 +90,5 @@ venv.bak/
 redis_test.py
 *.py[cod]
 *$py.class
+
+cypress/cypress/e2e/data

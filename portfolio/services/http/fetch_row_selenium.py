@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from portfolio.calc.changes import change_str
 
-from portfolio.utils.config import db, html_dir, html_url
+from portfolio.utils.config import db, output_dir, html_url
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.utils.init import log
 from portfolio.utils.utils import first_number, pause
@@ -78,7 +78,7 @@ def fetch_row(param_row, run_id, queue_id, run_mode):
             status = "INVALID"
 
         if run_mode in ["reload", "retry"] or status == "INVALID":
-            driver.save_screenshot(os.path.join(html_dir, filename + ".png"))
+            driver.save_screenshot(os.path.join(output_dir, filename + ".png"))
 
     except Exception as e:
         msg = f"{e}"
@@ -113,7 +113,7 @@ def fetch_row(param_row, run_id, queue_id, run_mode):
         )
 
     page_source = driver.page_source
-    with open(os.path.join(html_dir, filename + ".html"), "w") as f:
+    with open(os.path.join(output_dir, filename + ".html"), "w") as f:
         f.write(page_source)
 
     driver.close()

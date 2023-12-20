@@ -1,8 +1,10 @@
+from datetime import datetime
 import os
 from bs4 import BeautifulSoup
 import sqlite3 as sl
 from portfolio.calc.changes import change_str
-from portfolio.utils.config import db, html_dir
+from portfolio.utils.config import db, output_dir, webdriver, cypress_data_dir
+from definitions import root_dir
 from portfolio.services.http.find_product import find_product
 from portfolio.utils.init import log
 from portfolio.utils.lib import (
@@ -13,8 +15,17 @@ from portfolio.utils.lib import (
 
 
 def parse_row(account_id, run_id, timestamp, filename):
-    html_file = os.path.join(html_dir, filename)
-    with open(html_file) as fp:
+    if not timestamp:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    status = "DONE"
+    # convert relative path to absolute path
+    absolute_filename = os.path.join(root_dir, filename)
+    if not os.path.exists(absolute_filename):
+        log(f"ERROR: {absolute_filename} not found")
+        return "ERROR"
+
+    with open(filename) as fp:
         html = BeautifulSoup(fp, "html.parser")
 
     sql = """
@@ -71,3 +82,5 @@ def parse_row(account_id, run_id, timestamp, filename):
                 )
 
             log(f"{row.product} {round(amount)} {change}")
+
+    return status

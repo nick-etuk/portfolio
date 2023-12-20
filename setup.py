@@ -7,7 +7,7 @@ def read(fname):
 
 
 setup(
-    name="Portfolio tracker for crypto assets",
+    name="portfolio",
     version="0.0.1",
     author="Nicholas Etuk",
     author_email="nick_etuk@hotmail.com",

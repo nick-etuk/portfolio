@@ -1,4 +1,10 @@
-from portfolio.utils.lib import named_tuple_factory, calc_apr, net_amount, previous_values_by_run_id, get_last_run_id
+from portfolio.utils.lib import (
+    named_tuple_factory,
+    calc_apr,
+    net_amount,
+    previous_values_by_run_id,
+    get_last_run_id,
+)
 import sqlite3 as sl
 from portfolio.utils.config import db
 from dateutil.parser import parse
@@ -15,12 +21,15 @@ table = []
 
 
 def change_str(amount, timestamp, previous_amount, previous_timestamp):
+    if not (amount and previous_amount and previous_timestamp):
+        return "New entry", 0
+
     change = amount - previous_amount
     current_timestamp = parse(timestamp)
     prev_timestamp = parse(previous_timestamp)
     delta = current_timestamp - prev_timestamp
     seconds = delta.total_seconds()
-    days = seconds/60/60/24
+    days = seconds / 60 / 60 / 24
 
     apr = calc_apr(previous_amount, change, days)
 
@@ -56,33 +65,38 @@ def get_products(run_id, account_id, account):
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        rows = c.execute(sql, (run_id, account_id,)).fetchall()
+        rows = c.execute(
+            sql,
+            (
+                run_id,
+                account_id,
+            ),
+        ).fetchall()
 
     results = []
     for product in rows:
         amount = net_amount(
-            product.amount, account_id=account_id, product_id=product.product_id)
+            product.amount, account_id=account_id, product_id=product.product_id
+        )
         change = ""
         previous = previous_values_by_run_id(
-            run_id=run_id, account_id=account_id, product_id=product.product_id)
+            run_id=run_id, account_id=account_id, product_id=product.product_id
+        )
 
         if previous:
-            change, apr = change_str(amount=amount, timestamp=product.timestamp,
-                                     previous_amount=previous.amount, previous_timestamp=previous.timestamp)
+            change, apr = change_str(
+                amount=amount,
+                timestamp=product.timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
+            )
 
         if change:
             print(account, product.product, amount, change)
             table.append([account, product.product, amount, change])
 
             results.append(
-                {
-                    product.product:
-                    {
-                        "amount": amount,
-                        "change": change,
-                        "apr": apr
-                    }
-                }
+                {product.product: {"amount": amount, "change": change, "apr": apr}}
             )
     return results
 
@@ -109,8 +123,7 @@ def get_accounts(run_id):
     products_result = {}
     for account in rows:
         account_col = account.account
-        result = get_products(
-            account.run_id, account.account_id, account.account)
+        result = get_products(account.run_id, account.account_id, account.account)
         if result:
             products_result[account.account] = result
 

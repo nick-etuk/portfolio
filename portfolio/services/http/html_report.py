@@ -1,10 +1,12 @@
+import os
+from datetime import datetime
 import subprocess
 from tabulate import tabulate
 from portfolio.calc import targets
 from portfolio.calc.cash_balances import get_cash_balances
 from portfolio.calc.changes import report_changes
 from portfolio.calc.totals import show_totals
-from portfolio.utils.config import html_file
+from portfolio.utils.config import output_dir
 from portfolio.utils.init import current_logfile, init
 from portfolio.utils.lib import get_last_run_id
 from portfolio.risks.risks import check_risks
@@ -86,10 +88,14 @@ def create_html_report(changes, totals, targets, cash_balances):
     html = html.replace("{targets_table}", targets_html)
     html = html.replace("{log_messages}", log_messages)
 
-    with open(html_file, "w") as f:
+    report_file = os.path.join(
+        output_dir,
+        f'portfolio_summary_{datetime.now().strftime("%Y-%m-%d")}.html',
+    )
+    with open(report_file, "w") as f:
         f.write(html)
 
-    return html_file
+    return report_file
 
 
 if __name__ == "__main__":
