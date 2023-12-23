@@ -1,8 +1,8 @@
+from portfolio.calc.apr import calc_apr
+from portfolio.calc.debts_by_product import net_amount
+from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.lib import (
     named_tuple_factory,
-    calc_apr,
-    net_amount,
-    previous_values_by_run_id,
     get_last_run_id,
 )
 import sqlite3 as sl
@@ -10,8 +10,6 @@ from portfolio.utils.config import db
 from dateutil.parser import parse
 from icecream import ic
 from portfolio.utils.init import init, log
-from datetime import datetime
-from tabulate import tabulate
 
 account_col = ""
 product_col = ""
@@ -21,7 +19,7 @@ table = []
 
 
 def change_str(amount, timestamp, previous_amount, previous_timestamp):
-    if not (amount and previous_amount and previous_timestamp):
+    if not (previous_amount and previous_timestamp):
         return "New entry", 0
 
     change = amount - previous_amount
@@ -36,7 +34,7 @@ def change_str(amount, timestamp, previous_amount, previous_timestamp):
     change_str = ""
     if change != 0:
         change_str = "{:+.0f}".format(change)
-        days_str1 = "day" if round(days, 1) == 1.0 else "days"
+        days_str1 = "day" if round(days) == 1 else "days"
         days_str2 = "{:.1f}".format(days).strip("0").strip(".")
         days_str = days_str2 + " " + days_str1
         # days_str = f"{days:g} {days_str1}"
@@ -79,7 +77,7 @@ def get_products(run_id, account_id, account):
             product.amount, account_id=account_id, product_id=product.product_id
         )
         change = ""
-        previous = previous_values_by_run_id(
+        previous = previous_by_run_id(
             run_id=run_id, account_id=account_id, product_id=product.product_id
         )
 
@@ -143,7 +141,7 @@ def pretty_print(input):
 
 def report_changes(run_id: int = 0):
     if not run_id:
-        run_id, timestamp = get_last_run_id()
+        run_id, _ = get_last_run_id()
     result = get_accounts(run_id)
     ic(result)
     return table

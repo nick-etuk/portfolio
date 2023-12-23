@@ -21,7 +21,6 @@ else:
 """
 
 host = socket.gethostname()
-print(f"host: {host}")
 
 host = "Nicholass-MacBook-Pro.local"
 

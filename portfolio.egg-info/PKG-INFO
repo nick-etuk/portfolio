@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: portfolio
+Version: 0.0.1
+Summary: Portfolio tracker for crypto assets
+Home-page: http://asterlan.com
+Author: Nicholas Etuk
+Author-email: nick_etuk@hotmail.com
+Keywords: crypto portfolio
+
+Portfolio tracker for cryto assets
+
+Generates a HTML page summarising your crypt currency assets.
+
+Saves the current value of your crypto assets in an SQLite database.
+
+Run it every day to keep a history of how your assets as growing or shrinking.
+
+

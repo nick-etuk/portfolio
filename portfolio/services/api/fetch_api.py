@@ -1,11 +1,12 @@
+from datetime import datetime
 import sqlite3 as sl
 from portfolio.calc.changes import change_str
+from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db
 from portfolio.utils.lib import (
     get_last_run_id,
     get_last_seq,
     named_tuple_factory,
-    previous_values_by_run_id,
 )
 from portfolio.utils.init import init, log
 
@@ -17,6 +18,10 @@ from icecream import ic
 
 
 def fetch_api(run_id, timestamp):
+    if not timestamp:
+        log("Fetch API: No timestamp, using current date and time")
+        timestamp = datetime.now().isoformat()
+
     sql = """
         select act.account_id, act.dummy, ac.descr as account, 
         p.product_id, p.descr as product, p.data_source
@@ -30,7 +35,8 @@ def fetch_api(run_id, timestamp):
             where account_id=act.account_id
             and product_id=act.product_id
             )
-        and p.data_source in ('FTX_API', 'BINANCE_API', 'CMC')
+        /* and p.data_source in ('FTX_API', 'BINANCE_API', 'CMC') */
+        and p.data_source in ('CMC')
         and act.status='A'
         """
     api = {
@@ -78,7 +84,7 @@ def fetch_api(run_id, timestamp):
 
                     # seq, discard_me = get_last_seq()
 
-                    previous = previous_values_by_run_id(
+                    previous = previous_by_run_id(
                         run_id=run_id,
                         account_id=row.account_id,
                         product_id=row.product_id,
@@ -86,7 +92,7 @@ def fetch_api(run_id, timestamp):
 
                     change = ""
                     if previous:
-                        change, apr = change_str(
+                        change, _ = change_str(
                             amount=result["value"],
                             timestamp=timestamp,
                             previous_amount=previous.amount,
@@ -98,8 +104,11 @@ def fetch_api(run_id, timestamp):
                 )
             except Exception as e:
                 msg = f"{e}"
-                print(msg)
+                # print(msg)
                 log(msg[:130])
+                print(
+                    f"Error row: {row.data_source}, {row.account}, {row.product}, {round(result['value'])}"
+                )
 
 
 if __name__ == "__main__":

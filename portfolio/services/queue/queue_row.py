@@ -1,15 +1,11 @@
 from datetime import datetime
-import os
 import sqlite3 as sl
-from portfolio.calc.changes import change_str
 
 from portfolio.utils.config import db, output_dir, html_url, data_dir
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.utils.init import log
-from portfolio.utils.utils import first_number
 
 
-def queue_row(param_row, run_id, queue_id, run_mode):
+def queue_row(param_row):
     sql = """
     select act.amount, act.timestamp, ac.descr
     from account ac 
@@ -32,7 +28,6 @@ def queue_row(param_row, run_id, queue_id, run_mode):
     url = html_url + param_row.address
     timestamp = datetime.now()
     timestamp_str = timestamp.strftime("%Y-%m-%d_%H_%M_%S")
-    timestamp_str2 = timestamp.strftime("%Y-%m-%d %H:%M:%S")
     filename = f"{param_row.account}_{timestamp_str}.html"
 
     # log(f"URL {url}, filename {filename}, last total {last_total}")

@@ -1,32 +1,33 @@
-#from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import re
 from portfolio.utils.init import log
 from portfolio.utils.utils import first_number
 
 
 def find_product(html, prod_descr, chain, project, prod_label, html_table_coloumns):
-
     def subtotal(project, product):
         div = html.find("div", class_=re.compile("HeaderInfo_totalAsset.*"))
         result = div.text
         return result
 
     def wallet(project, product):
-        div = html.find("div", title='Wallet').find_next_sibling(
-            "div", class_=re.compile("ProjectCell_assetsItemWorth.*"))
-        result = div.text
+        result = ""
+        div = html.find("div", title="Wallet")
+        if div:
+            div.find_next_sibling(
+                "div", class_=re.compile("ProjectCell_assetsItemWorth.*")
+            )
+            result = div.text
         return result
 
     def beefy_v2(protocol_label, pool):
         div = html.find("div", id=protocol_label)
         if not div:
             return ""
-        d2 = div.find_next(
-            "div", text=pool)
+        d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next(
-            "span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -36,8 +37,7 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div = html.find("img", src=re.compile(protocol_label))
         if not div:
             return ""
-        div.find_next(
-            "div", class_=re.compile("ProjectCell_assetsItemWorth.*"))
+        div.find_next("div", class_=re.compile("ProjectCell_assetsItemWorth.*"))
         result = div.text
         return result
 
@@ -68,33 +68,29 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div = html.find("div", id="avax_aave3")
         if not div:
             return ""
-        d2 = div.find_next(
-            "div", text=coin)
+        d2 = div.find_next("div", text=coin)
         if not d2:
             return ""
-        d3 = d2.find_next(
-            "span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
         return result
 
     def aave_usdt(project, product):
-        return aave('USDt')
+        return aave("USDt")
 
     def aave_usdc(project, product):
-        return aave('USDC')
+        return aave("USDC")
 
     def spooky(pool):
         div = html.find("div", id="ftm_spookyswap")
         if not div:
             return ""
-        d2 = div.find_next(
-            "div", text=pool)
+        d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next(
-            "span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -107,12 +103,10 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div = html.find("div", id="matic_quickswap")
         if not div:
             return ""
-        d2 = div.find_next(
-            "div", text=pool)
+        d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next(
-            "span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -122,15 +116,12 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div1 = html.find("div", id=project)
         if not div1:
             return ""
-        div2 = div1.find_next(
-            "div", text=product)
+        div2 = div1.find_next("div", text=product)
         if not div2:
             return ""
-        span = div2.find_next(
-            "span", text=re.compile("\$\d+(?:\.\d+)?"))
-        if project == 'matic_stargate':
-            span = div2.find_next(
-                "span", text=re.compile("\$\d+(?:\.\d+)?"))
+        span = div2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        if project == "matic_stargate":
+            span = div2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
         if not span:
             return ""
         result = span.text
@@ -140,12 +131,9 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div1 = html.find("div", id=project)
         if not div1:
             return ""
-        div2 = div1.find_next(
-            "div", text=re.compile(product))
-        div3 = div2.find_next(
-            "div", text=re.compile(product))
-        div4 = div3.find_next(
-            "div", text=re.compile(product))
+        div2 = div1.find_next("div", text=re.compile(product))
+        div3 = div2.find_next("div", text=re.compile(product))
+        div4 = div3.find_next("div", text=re.compile(product))
         if not div4:
             return ""
         result = div4.text
@@ -155,12 +143,11 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div1 = html.find("div", id=project)
         if not div1:
             return ""
-        row = div1.find_next(
-            "div", class_=re.compile('table_contentRow.*'))
+        row = div1.find_next("div", class_=re.compile("table_contentRow.*"))
 
         next_col = row.find_next("div")
-        print('col1:', next_col)
-        for col in range(2, cols+1):
+        print("col1:", next_col)
+        for col in range(2, cols + 1):
             next_col = next_col.find_next_sibling("div")
             print(f"col{col}: {next_col}")
 
@@ -179,22 +166,21 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div1 = html.find("div", id=project)
         if not div1:
             return ""
-        row = div1.find_next(
-            "div", class_=re.compile('table_contentRow.*'))
+        row = div1.find_next("div", class_=re.compile("table_contentRow.*"))
         col1 = row.find_next("div")
-        print('col1:', col1)
+        print("col1:", col1)
 
         col2 = col1.find_next_sibling("div")
-        print('col2:', col2)
+        print("col2:", col2)
 
         col3 = col2.find_next_sibling("div")
-        print('col3:', col3)
+        print("col3:", col3)
 
         col4 = col3.find_next_sibling("div")
-        print('col4:', col4)
+        print("col4:", col4)
 
         col5 = col4.find_next_sibling("div")
-        print('col5:', col5)
+        print("col5:", col5)
 
         if not col5:
             return ""
@@ -210,34 +196,38 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         return liquidity_pool("ftm_yearn2", "DAI")
 
     prod_search = {
-        'HTML Subtotal': subtotal,
-        'Wallet': wallet,
-        'Beefy Spiritswap DAI USDC': beefy_fantom,
-        'Beefy Apeswap USDT BUSD': beefy_ape_usdt,
-        'Beefy Veladrome USD Plus': beefy_usd_plus,
-        'Aave Avlanche USDT': aave_usdt,
-        'Aave Avlanche USDC': aave_usdc,
-        'SpookySwap USDC + DAI': spooky_usdc_dai,
-        'QuickSwap USDC + DAI': quickswap_usdc_dai,
-        'Yearn DAI': yearn_dai,
-        'Beefy Babyswap USDT BUSD': beefy_baby_usdt,
-        'Stargate USDT': liquidity_pool_4_col,
-        'Curve aave': liquidity_pool_5_col,
-        'TETU USDC': liquidity_pool_3_col,
-        'Penrose DAI': liquidity_pool_5_col,
-        'Dystopia DAI': liquidity_pool_3_col,
+        "HTML Subtotal": subtotal,
+        "Wallet": wallet,
+        "Beefy Spiritswap DAI USDC": beefy_fantom,
+        "Beefy Apeswap USDT BUSD": beefy_ape_usdt,
+        "Beefy Veladrome USD Plus": beefy_usd_plus,
+        "Aave Avlanche USDT": aave_usdt,
+        "Aave Avlanche USDC": aave_usdc,
+        "SpookySwap USDC + DAI": spooky_usdc_dai,
+        "QuickSwap USDC + DAI": quickswap_usdc_dai,
+        "Yearn DAI": yearn_dai,
+        "Beefy Babyswap USDT BUSD": beefy_baby_usdt,
+        "Stargate USDT": liquidity_pool_4_col,
+        "Curve aave": liquidity_pool_5_col,
+        "TETU USDC": liquidity_pool_3_col,
+        "Penrose DAI": liquidity_pool_5_col,
+        "Dystopia DAI": liquidity_pool_3_col,
     }
 
-    project_label = chain + '_' + project
+    project_label = chain + "_" + project
     if html_table_coloumns:
-        result = liquidity_pool_n_col(
-            cols=html_table_coloumns, project=project_label, product=prod_label)
+        search_results = liquidity_pool_n_col(
+            cols=html_table_coloumns, project=project_label, product=prod_label
+        )
     else:
-        result = prod_search[prod_descr](
-            project=project_label, product=prod_label)
+        search_results = prod_search[prod_descr](
+            project=project_label, product=prod_label
+        )
 
-    amount = ""
-    if result:
-        amount = first_number(result.replace("$", "").replace(",", ""))
-        return float(amount)
-    return 0
+    product_amount_str = ""
+    if search_results:
+        product_amount_str = first_number(
+            search_results.replace("$", "").replace(",", "")
+        )
+
+    return float(product_amount_str) if product_amount_str else 0

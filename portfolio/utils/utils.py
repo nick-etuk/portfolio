@@ -23,15 +23,15 @@ def long_pause():
     # sleep for between 5 and ten minutes between each brand
     if config.debug_local_files_only:
         return
-    pause_length = random.randint(5*60, 10*60)
-    mins = round(pause_length/60, 1)
+    pause_length = random.randint(5 * 60, 10 * 60)
+    mins = round(pause_length / 60, 1)
     log(f"Waiting for {mins} minutes")
     time.sleep(pause_length)
 
 
 def first_number(str: str):
-    result = []
-    numbers = re.findall(r'\d+', str)
+    result = None
+    numbers = re.findall(r"\d+", str)
     if numbers:
         result = numbers[0]
 

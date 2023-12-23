@@ -14,7 +14,7 @@ from portfolio.utils.init import log
 from portfolio.utils.utils import first_number, pause
 
 
-def fetch_row(param_row, run_id, queue_id, run_mode):
+def fetch_html_selenium(param_row, run_id, queue_id, run_mode):
     sql = """
     select act.amount, act.timestamp
     from actual_total act

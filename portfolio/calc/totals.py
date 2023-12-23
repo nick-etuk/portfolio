@@ -1,12 +1,11 @@
 import numpy as np
+from portfolio.calc.debts_by_product import get_debts_by_product
+from portfolio.calc.previous.first_entry import first_entry
+from portfolio.calc.previous.previous_by_days_elapsed import previous_by_days_elapsed
+from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.init import init, log
-from portfolio.utils.lib import (
-    named_tuple_factory,
-    previous_values_by_run_id,
-    previous_values_days_ago,
-    first_entry,
-    get_debts_by_product,
-)
+from portfolio.utils.lib import named_tuple_factory
+
 import sqlite3 as sl
 from portfolio.utils.config import db
 from dateutil.parser import parse
@@ -54,11 +53,11 @@ def get_products(run_id, timestamp, account_id, account, mode):
             amount -= debts[product.product_id]
 
         change = ""
-        previous = previous_values_by_run_id(
+        previous = previous_by_run_id(
             run_id=run_id, account_id=account_id, product_id=product.product_id
         )
         if previous:
-            change, apr = change_str(
+            change, _ = change_str(
                 amount=amount,
                 timestamp=timestamp,
                 previous_amount=previous.amount,
@@ -66,11 +65,11 @@ def get_products(run_id, timestamp, account_id, account, mode):
             )
 
         weekly_change = ""
-        previous = previous_values_days_ago(
+        previous = previous_by_days_elapsed(
             account_id=account_id, product_id=product.product_id, days=7
         )
         if previous:
-            weekly_change, apr = change_str(
+            weekly_change, _ = change_str(
                 amount=amount,
                 timestamp=timestamp,
                 previous_amount=previous.amount,
@@ -78,13 +77,23 @@ def get_products(run_id, timestamp, account_id, account, mode):
             )
 
         monthly_change = ""
-        previous = previous_values_days_ago(
+        previous = previous_by_days_elapsed(
             account_id=account_id, product_id=product.product_id, days=30
         )
         if not previous:
             previous = first_entry(account_id=account_id, product_id=product.product_id)
         if previous:
-            monthly_change, apr = change_str(
+            monthly_change, _ = change_str(
+                amount=amount,
+                timestamp=timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
+            )
+
+        alltime_change = ""
+        previous = first_entry(account_id=account_id, product_id=product.product_id)
+        if previous:
+            alltime_change, _ = change_str(
                 amount=amount,
                 timestamp=timestamp,
                 previous_amount=previous.amount,
@@ -100,6 +109,7 @@ def get_products(run_id, timestamp, account_id, account, mode):
                     "change": change,
                     "week": weekly_change,
                     "month": monthly_change,
+                    "alltime": alltime_change,
                 }
             }
         )
@@ -113,6 +123,7 @@ def get_products(run_id, timestamp, account_id, account, mode):
                 change,
                 weekly_change,
                 monthly_change,
+                alltime_change,
             ]
         )
         total += amount
@@ -225,7 +236,7 @@ def get_totals(mode: str, account_id: int = 0):
             for row in prod_rows:
                 result_table.append(row)
 
-        if not mode == "cash":
+        if mode != "cash":
             asset_total, assets, asset_rows = get_assets(account)
             if assets:
                 result_list.append(assets)
@@ -238,7 +249,7 @@ def get_totals(mode: str, account_id: int = 0):
                 result_list.append(debts)
                 total -= debt_total
 
-        if not total == 0:
+        if total != 0:
             result_list.append({"Total": round(total, 0)})
 
         if result_list:
@@ -259,11 +270,11 @@ def get_totals(mode: str, account_id: int = 0):
 
 
 def show_totals(mode):
-    total, solomon_total, personal_total, result_dict, result_table = get_totals(mode)
+    total, solomon_total, personal_total, _, result_table = get_totals(mode)
     log(f"Solomon {mode}: {solomon_total}")
     log(f"Personal {mode}: {personal_total}")
     log(f"Combined {mode}: {total}")
-    # print('totals table 0:', result_table, "\n")
+    print("totals table 0:", result_table, "\n")
     return result_table
     # return np.sort(table, axis=0)
 

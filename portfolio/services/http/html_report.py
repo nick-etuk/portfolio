@@ -13,8 +13,6 @@ from portfolio.risks.risks import check_risks
 
 
 def create_html_report(changes, totals, targets, cash_balances):
-    print("totals table 2:", totals)
-
     simple_html = """
     <html>
     <head>
@@ -62,6 +60,7 @@ def create_html_report(changes, totals, targets, cash_balances):
             "Change",
             "Week",
             "Month",
+            "Overall",
         ],
     )
     targets_html = tabulate(

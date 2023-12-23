@@ -14,8 +14,8 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   }
 });
 
-describe('v3', () => {
-  it('fetches accounts from queue, fetches and saves the html', () => {
+describe('Fetch html', () => {
+  it('Get accounts from queue, fetches html', () => {
     const updatedAccounts = [];
     cy.readFile(queueFile).then((data) => {
       cy.log(JSON.stringify(data, 2, null));
@@ -28,11 +28,23 @@ describe('v3', () => {
         cy.visit(account.url);
         cy.get("[class*='UpdateButton_refresh']").contains('Data updated');
         account.status = 'PARSING';
-        // cy.get("[class*='UpdateButton_updateTimeNumber']");
-        // cy.wait(5000);
-        // get body html
+
+        // total_div = driver.find_element(By.CSS_SELECTOR, "[class*='HeaderInfo_totalAsset']")
+        /*
+        cy.get("[class*='HeaderInfo_totalAsset']").should((element) => {
+          let totalText = element.text();
+          totalText = totalText.replace('$', '').replace(',', '');
+          // new_total = float(first_number(total_text))
+          const newTotal = parseFloat(totalText);
+          account.total = newTotal;
+          if (newTotal * 1.2 < account.lastTotal) account.status = 'INVALID';
+          cy.log(
+            `totalText:${newTotal} newTotal: ${newTotal} lastTotal: ${account.lastTotal} status: ${account.status}`
+          );
+        });
+        */
+
         cy.get('body').then((doc) => {
-          // cy.log(doc);
           cy.writeFile(
             `${rawHtmlDir}/${account.fileName}`,
             doc[0].outerHTML,

@@ -15,7 +15,7 @@ def parse_html(run_mode):
         where q.account_id=ac.account_id
         and q.status='PARSING'
         """
-    if run_mode == "reload":
+    if run_mode in ["reload", "retry"]:
         sql = """
             select q.queue_id, q.run_id, q.timestamp, q.account_id, ac.descr as account, q.filename 
             from html_parse_queue q, account ac
@@ -36,7 +36,9 @@ def parse_html(run_mode):
         )
         filename = os.path.join(raw_html_dir, row.filename)
         log(f"Parsing {row.account}")
-        status = parse_row(row.account_id, row.run_id, row.timestamp, filename)
+        status = parse_row(
+            row.account_id, row.run_id, row.queue_id, row.timestamp, filename
+        )
 
         queue_id = row.queue_id
         sql = "update html_parse_queue set status=? where queue_id=?"

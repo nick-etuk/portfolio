@@ -10,7 +10,8 @@ from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
 from portfolio.calc.targets import targets
 from portfolio.services.api.fetch_api import fetch_api
-from portfolio.services.http.queue_row import queue_row
+from portfolio.services.queue.file_based_queue import queue_html_accounts
+from portfolio.services.queue.queue_row import queue_row
 from portfolio.services.http.html_report import create_html_report
 from portfolio.services.http.parse_html import parse_html
 
@@ -76,37 +77,3 @@ def fetch_html_cypress(run_id):
                 ),
             )
     return status_summary
-
-
-if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        run_mode = "normal"
-    else:
-        run_mode = sys.argv[1]
-    # run_mode = "retry"
-    init()
-    run_id, timestamp = next_run_id(run_mode)
-    log(f"Run mode:{run_mode}, run_id:{run_id}")
-
-    # fetch_api(run_id, timestamp)
-
-    status = queue_html_accounts(run_id, timestamp, run_mode)
-    if webdriver == "cypress":
-        fetch_html_cypress()
-
-    parse_html(run_mode)
-
-    changes = report_changes(run_id)
-    totals = show_totals("total")
-    targets = targets()
-    cash_balances = get_cash_balances()
-
-    html_file = create_html_report(
-        changes=changes, totals=totals, targets=targets, cash_balances=cash_balances
-    )
-
-    # subprocess.Popen([r"F:\app\Notepad++\notepad++.exe", current_logfile()])
-    subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
-
-    if status == "ERROR":
-        sys.exit(1)
