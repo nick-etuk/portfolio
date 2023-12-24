@@ -29,6 +29,7 @@ def queue_row(param_row):
     timestamp = datetime.now()
     timestamp_str = timestamp.strftime("%Y-%m-%d_%H_%M_%S")
     filename = f"{param_row.account}_{timestamp_str}.html"
+    timestamp_str2 = timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
     # log(f"URL {url}, filename {filename}, last total {last_total}")
-    return url, filename, last_total, timestamp
+    return url, filename, last_total, timestamp_str2
