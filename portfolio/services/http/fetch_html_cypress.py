@@ -5,7 +5,7 @@ import sys
 
 import sqlite3 as sl
 from icecream import ic
-from portfolio.calc.cash_balances import get_cash_balances
+from portfolio.calc.bitquery_balances import bitquery_balances
 from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
 from portfolio.calc.targets import targets

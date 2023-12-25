@@ -3,7 +3,7 @@ import json
 import os
 import sqlite3 as sl
 from icecream import ic
-from portfolio.utils.config import db, raw_html_dir
+from portfolio.utils.config import db, raw_html_dir, data_dir
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.bitquery import get_wallet_balances
 from portfolio.services.api.coin_market_cap import get_multiple_prices
@@ -11,7 +11,12 @@ from portfolio.services.api.coin_market_cap import get_multiple_prices
 result = []
 
 
-def get_cash_balances():
+def bitquery_balances():
+    """
+    Get cash balances from Bitquery API
+    Is this really just cash balances, or is it all balances for each account?
+    """
+    output_dir = os.path.join(data_dir, "bitquery_balances")
     chains = ["ethereum", "bsc", "matic", "fantom", "avalanche", "moonbeam"]
     # Exclude shit coins with same symbol as legitimate coins
     exclusion_list = ["BUSDSWAP.NET"]
@@ -39,7 +44,7 @@ def get_cash_balances():
         # with open(os.path.join(raw_html_dir, filename), 'r') as f:
         #   response = json.load(f)
 
-        with open(os.path.join(raw_html_dir, filename), "w") as f:
+        with open(os.path.join(output_dir, filename), "w") as f:
             f.write(json.dumps(response))
 
         for chain in chains:
@@ -78,7 +83,9 @@ def get_cash_balances():
                 amount = amounts[account][chain][symbol]
 
                 if symbol not in prices:
-                    print(f"No prices for {symbol} from CMC")
+                    print(
+                        f"=>get_cash_balances: No prices for {symbol} from Coin Market Cap"
+                    )
                     continue
 
                 value = prices[symbol] * amount
@@ -87,9 +94,9 @@ def get_cash_balances():
                     print(f"{account} {chain} {symbol} {value}")
                     result.append([account, chain, symbol, round(value)])
 
-    print("cash balances:", result)
+    print("bitquery balances:", result)
     return result
 
 
 if __name__ == "__main__":
-    get_cash_balances()
+    bitquery_balances()

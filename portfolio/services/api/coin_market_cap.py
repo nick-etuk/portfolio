@@ -44,7 +44,7 @@ def call_cmc_api(symbols: str):
 def get_price(symbol: str):
     response = call_cmc_api(symbol)
     if "data" not in response:
-        print(f"No CMC API data for {symbol}")
+        print(f"=>api.get_price: No Coin Market Cap API data for {symbol}")
         return 0
     price_data = response["data"][symbol.upper()]
     # ic(price_data)
@@ -60,7 +60,7 @@ def get_multiple_prices(symbols: str):
     response = call_cmc_api(symbols)
     # ic(response)
     if "data" not in response:
-        print(f"No CMC API data for {symbols}")
+        print(f"api.get_multiple_prices: No Coin Market Cap API data for {symbols}")
         return {}
     for symbol in symbols.split(","):
         price_data = response["data"][symbol]

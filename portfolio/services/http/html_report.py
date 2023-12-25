@@ -3,7 +3,7 @@ from datetime import datetime
 import subprocess
 from tabulate import tabulate
 from portfolio.calc import targets
-from portfolio.calc.cash_balances import get_cash_balances
+from portfolio.calc.bitquery_balances import bitquery_balances
 from portfolio.calc.changes import report_changes
 from portfolio.calc.totals import show_totals
 from portfolio.utils.config import output_dir
@@ -12,7 +12,7 @@ from portfolio.utils.lib import get_last_run_id
 from portfolio.risks.risks import check_risks
 
 
-def create_html_report(changes, totals, targets, cash_balances):
+def create_html_report(changes, totals, targets, bitquery_balances):
     simple_html = """
     <html>
     <head>
@@ -28,8 +28,8 @@ def create_html_report(changes, totals, targets, cash_balances):
         <br>
         {risk_violations}
         <br>
-        <h2>Cash</h2>
-        {cash_balances}
+        <h2>Bitquery Balances</h2>
+        {bitquery_balances}
         <br>
         <h2>Totals</h2>
         {totals_table}
@@ -70,8 +70,10 @@ def create_html_report(changes, totals, targets, cash_balances):
     )
     risk_violations = check_risks()
 
-    cash_html = tabulate(
-        cash_balances, tablefmt="html", headers=["Account", "Chain", "Symbol", "Value"]
+    bitquery_html = tabulate(
+        bitquery_balances,
+        tablefmt="html",
+        headers=["Account", "Chain", "Symbol", "Value"],
     )
 
     with open(current_logfile(), "r") as f:
@@ -82,7 +84,7 @@ def create_html_report(changes, totals, targets, cash_balances):
     html = html.replace("}}", "}")
     html = html.replace("{changes_table}", changes_html)
     html = html.replace("{risk_violations}", risk_violations)
-    html = html.replace("{cash_balances}", cash_html)
+    html = html.replace("{bitquery_balances}", bitquery_html)
     html = html.replace("{totals_table}", totals_html)
     html = html.replace("{targets_table}", targets_html)
     html = html.replace("{log_messages}", log_messages)
@@ -105,12 +107,12 @@ if __name__ == "__main__":
     print("totals table 0b:", totals_table, "\n")
     targets_table = targets()
     print("totals table 1:", totals_table, "\n")
-    cash_balances = get_cash_balances()
+    cash_balances = bitquery_balances()
     html_file = create_html_report(
         changes=changes_table,
         totals=totals_table,
         targets=targets_table,
-        cash_balances=cash_balances,
+        bitquery_balances=cash_balances,
     )
 
     subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])

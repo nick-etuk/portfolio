@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 from icecream import ic
-from portfolio.calc.cash_balances import get_cash_balances
+from portfolio.calc.bitquery_balances import bitquery_balances
 from portfolio.calc.targets import targets
 from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
@@ -40,11 +40,14 @@ def main():
     changes = report_changes(run_id)
     totals = show_totals("total")
     my_targets = targets()
-    cash_balances = get_cash_balances()
-    cash_balances = {}
+    bitquery_balances = bitquery_balances()
+    # cash_balances = {}
 
     html_file = create_html_report(
-        changes=changes, totals=totals, targets=my_targets, cash_balances=cash_balances
+        changes=changes,
+        totals=totals,
+        targets=my_targets,
+        bitquery_balances=bitquery_balances,
     )
 
     subprocess.Popen([r"open", html_file])
