@@ -54,9 +54,20 @@ def create_html_report(
     """
     html_template = simple_html
 
-    changes_html = tabulate(
-        changes, tablefmt="html", headers=["Account", "Instrument", "Value", "Change"]
-    )
+    changes_table = []
+    headers = ["Account", "Instrument", "Value", "Change"]
+
+    for instrument in changes:
+        changes_table.append(
+            [
+                instrument["account"],
+                instrument["product"],
+                round(instrument["amount"]),
+                instrument["apr"],
+            ]
+        )
+
+    changes_html = tabulate(changes_table, tablefmt="html", headers=headers)
     # changes_html = grey_out_pending(changes_html)
 
     totals_html = tabulate(

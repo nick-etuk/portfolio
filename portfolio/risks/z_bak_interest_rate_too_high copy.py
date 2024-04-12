@@ -13,11 +13,13 @@ def interest_rate_too_high(combined_total: float):
     last_run_id, timestamp = get_last_run_id()
     changes = get_accounts(last_run_id)
     instances = []
-    for product in changes:
-        apr = product["apr"]
-        change_str = product["change"]
-        if apr > 20:
-            instances.append(f"{product['account']} {product['product']} {change_str}")
+    for account in changes.items():
+        for products in account[1]:
+            for product in products.items():
+                apr = product[1]["apr"]
+                change_str = product[1]["change"]
+                if apr > 20:
+                    instances.append(f"{account[0]} {product[0]} {change_str}")
 
     return instances
 

@@ -65,14 +65,7 @@ def parse_row(account_id, run_id, queue_id, timestamp, filename):
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        amount = find_product(
-            html=html,
-            prod_descr=row.product,
-            chain=row.chain,
-            project=row.project,
-            prod_label=row.html_label,
-            html_table_coloumns=row.html_table_columns,
-        )
+        amount = find_product(html, row)
         if amount:
             sql = """
             insert into actual_total (product_id, account_id, run_id, timestamp, amount, status)

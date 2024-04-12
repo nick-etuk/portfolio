@@ -1,3 +1,4 @@
+import inspect
 from icecream import ic
 from portfolio.utils.init import init, log
 from portfolio.risks.ip_address_changed import ip_address_changed
@@ -21,6 +22,8 @@ def to_html(violations):
 
 
 def check_risks():
+    print(f"{__name__}.{inspect.stack()[0][3]}")
+
     combined_total, solomon_total, personal_total, details, table = get_totals("total")
     print("Combined total is", round(combined_total))
 
@@ -65,8 +68,6 @@ def check_risks():
         instances = rule["function"](combined_total)
         if instances:
             result.append({**rule, "instances": instances})
-
-    # ic(result)
 
     return to_html(result) if result else ""
 

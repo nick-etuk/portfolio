@@ -1,3 +1,4 @@
+import inspect
 from portfolio.utils.lib import named_tuple_factory
 import sqlite3 as sl
 from portfolio.utils.config import db
@@ -56,6 +57,7 @@ def auto_fund_managers(combined_total: float):
     i.e max of 6500 * 2 managed by beefy.
     no more than 40% of total value in one automated fund manager.
     """
+    print(f"{__name__}.{inspect.stack()[0][3]}")
 
     sql = """
     select p.manager, sum(act.amount) as amount

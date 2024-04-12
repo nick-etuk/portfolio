@@ -5,7 +5,7 @@ from portfolio.utils.init import log
 from portfolio.utils.utils import first_number
 
 
-def find_product(html, prod_descr, chain, project, prod_label, html_table_coloumns):
+def find_product(html, instrument):
     amount_class = "ProjectCell_assetsItemWorth"
 
     def subtotal(project, product):
@@ -149,8 +149,23 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         result = div4.text
         return result
 
-    def liquidity_pool_n_col(cols, project, product):
-        div1 = html.find("div", id=project)
+    def liquidity_pool_n_col(inst):
+        text_before = ""
+        if inst.product_id in ["UD_LP"]:
+            text_before = "Liquidity Pool"
+        cols = inst.html_table_columns
+        project = inst.project
+
+        if text_before:
+            div0 = html.find(text=text_before).parent
+            if div0:
+                div1 = html.find_next("div", id=project)
+                print("***** bp  1 *****")
+                ic(div1)
+            else:
+                div1 = None
+        else:
+            div1 = html.find("div", id=project)
         if not div1:
             return ""
         row = div1.find_next("div", class_=re.compile("table_contentRow.*"))
@@ -224,11 +239,15 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         "Dystopia DAI": liquidity_pool_3_col,
     }
 
+    prod_descr = instrument.product
+    chain = instrument.chain
+    project = instrument.project
+    prod_label = instrument.html_label
+    html_table_columns = instrument.html_table_columns
+
     project_label = chain + "_" + project
-    if html_table_coloumns:
-        search_results = liquidity_pool_n_col(
-            cols=html_table_coloumns, project=project_label, product=prod_label
-        )
+    if html_table_columns:
+        search_results = liquidity_pool_n_col(instrument)
     else:
         search_results = prod_search[prod_descr](
             project=project_label, product=prod_label

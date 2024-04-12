@@ -1,3 +1,4 @@
+import inspect
 from portfolio.calc.apr import calc_apr
 from portfolio.calc.debts_by_product import net_amount
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
@@ -46,6 +47,10 @@ def change_str(amount, timestamp, previous_amount, previous_timestamp):
 
 
 def get_products(run_id, account_id, account):
+    print(
+        f"{__name__}.{inspect.stack()[0][3]} run_id: {run_id}, account_id: {account_id}, account: {account}"
+    )
+
     sql = """
     select act.product_id, p.descr as product, p.volatile, act.amount, act.timestamp
     from actual_total act
@@ -103,25 +108,30 @@ def get_products(run_id, account_id, account):
 
         if change:
             print(account, product.product, amount, change)
-            table.append([account, product.product, amount, change])
+            # table.append([account, product.product, amount, change])
 
+            # results.append(                {product.product: {"amount": amount, "change": change, "apr": apr}}            )
             results.append(
-                {product.product: {"amount": amount, "change": change, "apr": apr}}
+                {
+                    "account": account,
+                    "product": product.product,
+                    "amount": amount,
+                    "change": change,
+                    "apr": apr,
+                }
             )
     return results
 
 
 def get_accounts(run_id):
+    print(f"{__name__}.{inspect.stack()[0][3]}")
+
     sql = """
-    select act.run_id, act.account_id, ac.descr as account
+    select distinct act.run_id, act.account_id, ac.descr as account
     from actual_total act
     inner join account ac
     on ac.account_id=act.account_id
-    where run_id=?
-    and act.seq=
-        (select max(seq) from actual_total
-        where account_id=act.account_id
-        and run_id=act.run_id)
+    where act.run_id=?
     and act.status='A'
     """
     with sl.connect(db) as conn:
@@ -129,40 +139,22 @@ def get_accounts(run_id):
         c = conn.cursor()
         rows = c.execute(sql, (run_id,)).fetchall()
 
-    accounts_result = {}
-    products_result = {}
+    results_array = []
     for account in rows:
-        account_col = account.account
-        result = get_products(account.run_id, account.account_id, account.account)
-        if result:
-            products_result[account.account] = result
+        prod_results = get_products(account.run_id, account.account_id, account.account)
+        if prod_results:
+            results_array += prod_results
 
-    accounts_result = products_result
-
-    return accounts_result
-
-
-def pretty_print(input):
-    table = []
-    for account in input:
-        account_str = account
-        for product_array in input[account]:
-            for product in product_array:
-                pass
+    return results_array
 
 
 def report_changes(run_id: int = 0):
     if not run_id:
         run_id, _ = get_last_run_id()
     result = get_accounts(run_id)
-    # ic(result)
-    return table
+    return result
 
 
 if __name__ == "__main__":
     init()
     print(report_changes())
-    # ic(result)
-
-    # print(round(0.97, 1))
-    # print(round(0.97, 2))

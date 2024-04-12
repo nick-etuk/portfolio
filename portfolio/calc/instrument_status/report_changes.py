@@ -18,8 +18,14 @@ def report_instrument_status_changes(run_id: int):
     inner join actual_total act
     on act.account_id=inst.account_id
     and act.product_id=inst.product_id
-    where inst.run_id=?
+    where act.seq=(
+        select max(seq) from actual_total
+        where account_id=act.account_id
+        and product_id=act.product_id
+        and run_id=act.run_id
+    )
     and act.run_id=inst.run_id
+    and inst.run_id=?
     order by ac.account_id, prod.product_id
     """
     with sl.connect(db) as conn:
