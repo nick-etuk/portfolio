@@ -3,16 +3,19 @@ from datetime import datetime
 import subprocess
 from tabulate import tabulate
 from portfolio.calc import targets
-from portfolio.calc.bitquery_balances import bitquery_balances
+from portfolio.calc.bitquery_balances import get_bitquery_balances
 from portfolio.calc.changes import report_changes
 from portfolio.calc.totals import show_totals
+from portfolio.services.http.grey_out_pending import grey_out_pending
 from portfolio.utils.config import output_dir
 from portfolio.utils.init import current_logfile, init
 from portfolio.utils.lib import get_last_run_id
 from portfolio.risks.risks import check_risks
 
 
-def create_html_report(changes, totals, targets, bitquery_balances):
+def create_html_report(
+    changes, totals, targets, bitquery_balances, instrument_status_changes
+):
     simple_html = """
     <html>
     <head>
@@ -33,7 +36,10 @@ def create_html_report(changes, totals, targets, bitquery_balances):
         <br>
         <h2>Totals</h2>
         {totals_table}
-        <br>   
+        <br>
+        <h2>Status Changes</h2>
+        {instrument_status_changes}
+        <br>
         <h2>Targets</h2>
         {targets_table}
         <br>        
@@ -46,14 +52,16 @@ def create_html_report(changes, totals, targets, bitquery_balances):
     html_template = simple_html
 
     changes_html = tabulate(
-        changes, tablefmt="html", headers=["Account", "Product", "Amount", "Change"]
+        changes, tablefmt="html", headers=["Account", "Instrument", "Value", "Change"]
     )
+    # changes_html = grey_out_pending(changes_html)
+
     totals_html = tabulate(
         totals,
         tablefmt="html",
         headers=[
             "Account",
-            "Product",
+            "Instrument",
             "Amount",
             "Risk",
             "Chain",
@@ -76,6 +84,12 @@ def create_html_report(changes, totals, targets, bitquery_balances):
         headers=["Account", "Chain", "Symbol", "Value"],
     )
 
+    instrument_status_changes_html = tabulate(
+        instrument_status_changes,
+        tablefmt="html",
+        headers=["Account", "Instrument", "Value", "Status", "Absence count"],
+    )
+
     with open(current_logfile(), "r") as f:
         log_messages = f.read()
 
@@ -88,6 +102,7 @@ def create_html_report(changes, totals, targets, bitquery_balances):
     html = html.replace("{totals_table}", totals_html)
     html = html.replace("{targets_table}", targets_html)
     html = html.replace("{log_messages}", log_messages)
+    html = html.replace("{instrument_status_changes}", instrument_status_changes_html)
 
     report_file = os.path.join(
         output_dir,
@@ -107,7 +122,7 @@ if __name__ == "__main__":
     print("totals table 0b:", totals_table, "\n")
     targets_table = targets()
     print("totals table 1:", totals_table, "\n")
-    cash_balances = bitquery_balances()
+    cash_balances = get_bitquery_balances()
     html_file = create_html_report(
         changes=changes_table,
         totals=totals_table,

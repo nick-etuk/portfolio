@@ -1,4 +1,5 @@
 from datetime import datetime
+import inspect
 from webbrowser import get
 
 import numpy as np
@@ -100,6 +101,7 @@ def get_target_accounts():
 
 
 def targets():
+    print(f"{__name__}.{inspect.stack()[0][3]}")
     result = get_target_accounts()
     # r2 = np.sort(result, axis=0)
     return result

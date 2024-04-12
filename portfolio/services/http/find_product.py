@@ -1,23 +1,32 @@
 # from bs4 import BeautifulSoup
 import re
+from icecream import ic
 from portfolio.utils.init import log
 from portfolio.utils.utils import first_number
 
 
 def find_product(html, prod_descr, chain, project, prod_label, html_table_coloumns):
+    amount_class = "ProjectCell_assetsItemWorth"
+
     def subtotal(project, product):
         div = html.find("div", class_=re.compile("HeaderInfo_totalAsset.*"))
         result = div.text
         return result
 
     def wallet(project, product):
+        """
+        <div title="Wallet" class="ProjectCell_assetsItemNameText__l9fan view_ellipsis__Z0mvR">Wallet</div>
+        <div class="ProjectCell_assetsItemWorth__EMwu2">$561</div>
+        """
         result = ""
         div = html.find("div", title="Wallet")
         if div:
-            div.find_next_sibling(
+            # d2 = div.select(f"div[class^={amount_class}]")
+            next_div = div.find_next_sibling(
                 "div", class_=re.compile("ProjectCell_assetsItemWorth.*")
             )
-            result = div.text
+            if next_div:
+                result = next_div.text
         return result
 
     def beefy_v2(protocol_label, pool):
@@ -37,8 +46,9 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         div = html.find("img", src=re.compile(protocol_label))
         if not div:
             return ""
-        div.find_next("div", class_=re.compile("ProjectCell_assetsItemWorth.*"))
-        result = div.text
+        next_div = div.find_next("div", class_=re.compile(f"{amount_class}.*"))
+        if next_div:
+            result = next_div.text
         return result
 
     def beefy_ape_usdt(project, product):
@@ -146,10 +156,10 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         row = div1.find_next("div", class_=re.compile("table_contentRow.*"))
 
         next_col = row.find_next("div")
-        print("col1:", next_col)
+        # print("col1:", next_col)
         for col in range(2, cols + 1):
             next_col = next_col.find_next_sibling("div")
-            print(f"col{col}: {next_col}")
+            # print(f"col{col}: {next_col}")
 
         if not next_col:
             return ""
@@ -196,7 +206,7 @@ def find_product(html, prod_descr, chain, project, prod_label, html_table_coloum
         return liquidity_pool("ftm_yearn2", "DAI")
 
     prod_search = {
-        "HTML Subtotal": subtotal,
+        "HTML total": subtotal,
         "Wallet": wallet,
         "Beefy Spiritswap DAI USDC": beefy_fantom,
         "Beefy Apeswap USDT BUSD": beefy_ape_usdt,

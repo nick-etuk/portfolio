@@ -66,7 +66,7 @@ def check_risks():
         if instances:
             result.append({**rule, "instances": instances})
 
-    ic(result)
+    # ic(result)
 
     return to_html(result) if result else ""
 

@@ -1,23 +1,25 @@
 from datetime import datetime
 import sqlite3 as sl
+import inspect
 from portfolio.calc.changes import change_str
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db
 from portfolio.utils.lib import (
     get_last_run_id,
-    get_last_seq,
     named_tuple_factory,
 )
 from portfolio.utils.init import init, log
 
 # from changes import change_str, get_last_run_id
-from portfolio.services.api.ftx import ftx_balance
+# from portfolio.services.api.ftx import ftx_balance
 from portfolio.services.api.binance import binance_balance
 from portfolio.services.api.coin_market_cap import cmc_get_value
 from icecream import ic
 
 
 def fetch_api(run_id, timestamp):
+    print(f"{__name__}.{inspect.stack()[0][3]}")
+
     if not timestamp:
         log("Fetch API: No timestamp, using current date and time")
         timestamp = datetime.now().isoformat()
@@ -49,7 +51,6 @@ def fetch_api(run_id, timestamp):
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
         rows = c.execute(sql).fetchall()
-        log("log test")
 
         for row in rows:
             log(

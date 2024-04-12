@@ -1,4 +1,5 @@
 from datetime import datetime
+import inspect
 import json
 import os
 import sqlite3 as sl
@@ -8,14 +9,17 @@ from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.bitquery import get_wallet_balances
 from portfolio.services.api.coin_market_cap import get_multiple_prices
 
-result = []
 
-
-def bitquery_balances():
+def get_bitquery_balances(run_mode):
     """
     Get cash balances from Bitquery API
     Is this really just cash balances, or is it all balances for each account?
     """
+    print(f"{__name__}.{inspect.stack()[0][3]}")
+    result = []
+    if run_mode != "normal":
+        return result
+
     output_dir = os.path.join(data_dir, "bitquery_balances")
     chains = ["ethereum", "bsc", "matic", "fantom", "avalanche", "moonbeam"]
     # Exclude shit coins with same symbol as legitimate coins
@@ -83,15 +87,13 @@ def bitquery_balances():
                 amount = amounts[account][chain][symbol]
 
                 if symbol not in prices:
-                    print(
-                        f"=>get_cash_balances: No prices for {symbol} from Coin Market Cap"
-                    )
+                    # print(f"=>get_cash_balances: No prices for {symbol} from Coin Market Cap")
                     continue
 
                 value = prices[symbol] * amount
 
                 if value > 10:
-                    print(f"{account} {chain} {symbol} {value}")
+                    print(f"{account} {chain} {symbol} {round(value)}")
                     result.append([account, chain, symbol, round(value)])
 
     print("bitquery balances:", result)
@@ -99,4 +101,4 @@ def bitquery_balances():
 
 
 if __name__ == "__main__":
-    bitquery_balances()
+    get_bitquery_balances()

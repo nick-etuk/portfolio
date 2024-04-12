@@ -1,9 +1,9 @@
-from datetime import datetime
 import subprocess
 import sys
 
 from icecream import ic
-from portfolio.calc.bitquery_balances import bitquery_balances
+from portfolio.calc.bitquery_balances import get_bitquery_balances
+from portfolio.calc.instrument_status.update_status import update_instrument_status
 from portfolio.calc.targets import targets
 from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
@@ -20,34 +20,26 @@ from portfolio.utils.next_run_id import next_run_id
 
 def main():
     status = ""
-    if len(sys.argv) == 1:
-        run_mode = "normal"
-    else:
-        run_mode = sys.argv[1]
-    # run_mode = "retry"
-    init()
-    run_id, timestamp = next_run_id(run_mode)
-    log(f"Run mode:{run_mode}, run_id:{run_id}")
-
     fetch_api(run_id, timestamp)
 
     status = queue_html_accounts(run_id, run_mode)
     if webdriver == "cypress":
-        fetch_html_cypress(run_id)
+        fetch_html_cypress(run_id, run_mode)
 
-    parse_html(run_mode)
-
-    changes = report_changes(run_id)
+    parse_html(run_mode, reload_run_id, reload_account)
+    instrument_status_changes = update_instrument_status(run_id)
+    changes = report_changes()
     totals = show_totals("total")
+    # totals = show_totals("cash")
     my_targets = targets()
-    bitquery_balances = bitquery_balances()
-    # cash_balances = {}
+    bitquery_balances = get_bitquery_balances(run_mode)
 
     html_file = create_html_report(
         changes=changes,
         totals=totals,
         targets=my_targets,
         bitquery_balances=bitquery_balances,
+        instrument_status_changes=instrument_status_changes,
     )
 
     subprocess.Popen([r"open", html_file])
@@ -57,4 +49,26 @@ def main():
 
 
 if __name__ == "__main__":
+    init()
+
+    args_len = len(sys.argv)
+    if args_len == 1:
+        run_mode = "normal"
+    elif args_len > 1:
+        run_mode = sys.argv[1]
+
+    run_id, timestamp = next_run_id(run_mode)
+
+    reload_run_id = None
+    if args_len == 3:
+        reload_run_id = sys.argv[2]
+        run_id = reload_run_id
+
+    reload_account = None
+    if args_len == 4:
+        reload_account = sys.argv[3]
+
+    log(f"Run mode:{run_mode}, run_id:{run_id}")
     main()
+    # update_instrument_status(run_id)
+    # parse_html(run_mode, account_to_reload)

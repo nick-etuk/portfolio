@@ -20,14 +20,20 @@ def get_products(run_id, timestamp, account_id, account, mode):
 
     cash_filter = "and p.cash='Y'" if mode == "cash" else ""
 
+    # select act.product_id, p.descr as product, risk.risk_level_descr, p.chain, sum(act.amount) as amount
     sql = f"""
-    select act.product_id, p.descr as product, risk.risk_level_descr, p.chain, sum(act.amount) as amount
+    select act.product_id, p.descr as product, risk.risk_level_descr, p.chain, act.amount
     from actual_total act
     inner join product p
     on p.product_id=act.product_id
     inner join risk_category risk
     on risk.id = p.risk_category
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
+    --and inst.run_id=act.run_id
     where act.account_id=?
+    and act.run_id = ?
     and act.status='A'
     and p.subtotal='N'
     and act.dummy = 'N'
@@ -36,12 +42,19 @@ def get_products(run_id, timestamp, account_id, account, mode):
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
-    group by act.product_id, p.descr
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+        --and run_id=inst.run_id
+    )
+    and inst.instrument_status='OPEN'
+    --group by act.product_id, p.descr
     """
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        rows = c.execute(sql, (account_id,)).fetchall()
+        rows = c.execute(sql, (account_id, run_id)).fetchall()
 
     debts = get_debts_by_product(account_id)
     result_dict = []
@@ -236,6 +249,7 @@ def get_totals(mode: str, account_id: int = 0):
             for row in prod_rows:
                 result_table.append(row)
 
+        """
         if mode != "cash":
             asset_total, assets, asset_rows = get_assets(account)
             if assets:
@@ -248,6 +262,7 @@ def get_totals(mode: str, account_id: int = 0):
             if debts:
                 result_list.append(debts)
                 total -= debt_total
+        """
 
         if total != 0:
             result_list.append({"Total": round(total, 0)})

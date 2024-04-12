@@ -1,3 +1,5 @@
+// this script is no longer used. Now using processQueue.cy.js
+
 const dataDir =
   '/Users/macbook-work/Library/CloudStorage/OneDrive-Personal/data/portfolio';
 const queueDir = dataDir + '/cypress-queue';
@@ -21,11 +23,11 @@ fs.readdir(queueDir, (err, files) => {
           return;
         }
         const obj = JSON.parse(data);
-        console.log(obj);
+        console.log('JSON object:' + obj);
         const url = obj.url;
-        console.log(url);
+        console.log('URL:' + url);
         const fileName = obj.fileName;
-        console.log(fileName);
+        console.log('filename:' + fileName);
 
         // console.log(data);
         // cy.visit(

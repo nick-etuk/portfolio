@@ -35,7 +35,7 @@ def save_new_total(html, queue_id):
             (new_total, queue_id),
         )
 
-    log(f"New total from parse_row: {round(new_total)} queue_id: {queue_id}")
+    log(f"HTML total: {round(new_total)} queue_id: {queue_id}")
 
 
 def parse_row(account_id, run_id, queue_id, timestamp, filename):

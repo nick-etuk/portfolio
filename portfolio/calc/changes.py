@@ -39,7 +39,8 @@ def change_str(amount, timestamp, previous_amount, previous_timestamp):
         days_str = days_str2 + " " + days_str1
         # days_str = f"{days:g} {days_str1}"
         if apr > 0.1:
-            change_str += "  " + "{:.0f}".format(apr) + "%  " + days_str
+            # change_str += "  " + "{:.0f}".format(apr) + "%  " + days_str
+            change_str = "{:.0f}".format(apr) + "%  " + days_str
 
     return change_str, apr
 
@@ -50,8 +51,12 @@ def get_products(run_id, account_id, account):
     from actual_total act
     inner join product p
     on p.product_id=act.product_id
-    where run_id = ?
-    and account_id=?
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
+    --and inst.run_id=act.run_id
+    where act.run_id = ?
+    and act.account_id=?
     and p.subtotal='N'
     and act.status='A'
     and act.seq=
@@ -59,6 +64,13 @@ def get_products(run_id, account_id, account):
         where account_id=act.account_id
         and product_id=act.product_id
         and run_id=act.run_id)
+    and inst.effdt=(
+    select max(effdt) from instrument_status
+    where account_id=inst.account_id
+    and product_id=inst.product_id
+    --and run_id=inst.run_id
+    )
+    and inst.instrument_status='OPEN'
     """
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
@@ -143,7 +155,7 @@ def report_changes(run_id: int = 0):
     if not run_id:
         run_id, _ = get_last_run_id()
     result = get_accounts(run_id)
-    ic(result)
+    # ic(result)
     return table
 
 

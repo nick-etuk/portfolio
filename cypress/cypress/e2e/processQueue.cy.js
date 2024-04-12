@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 const runId = Cypress.env('runId');
-// const runId = 383;
+// const runId = 402;
 const dataDir = 'cypress/e2e/data';
 const queueFile = `${dataDir}/queue/cypressQueue-${runId}.json`;
 const statusFile = `${dataDir}/queue/cypressStatus-${runId}.json`;
@@ -52,6 +52,8 @@ describe('Fetch html', () => {
           );
         });
         updatedAccounts.push(account);
+        cy.log(`Updated account ${account}. Pausing for 5 seconds...`);
+        cy.wait(5000);
       });
     });
     cy.writeFile(statusFile, updatedAccounts, 'utf8');
