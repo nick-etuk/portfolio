@@ -12,14 +12,23 @@ def get_details(manager: str):
     on p.product_id=act.product_id
     inner join account ac
     on ac.account_id=act.account_id
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where act.seq=
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     and p.manager = ?
     and act.status='A'
     """
-    details = ''
+    details = ""
     total = 0
 
     with sl.connect(db) as conn:
@@ -44,7 +53,7 @@ def get_details(manager: str):
 def auto_fund_managers(combined_total: float):
     """
     No more than 2 medium security lots in beefy, grizzly or any other automated fund manager.
-    i.e max of 6500 * 2 managed by beefy. 
+    i.e max of 6500 * 2 managed by beefy.
     no more than 40% of total value in one automated fund manager.
     """
 
@@ -53,12 +62,21 @@ def auto_fund_managers(combined_total: float):
     from actual_total act
     inner join product p
     on p.product_id=act.product_id
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where act.status='A'
     and p.manager <> ' '
     and act.seq=
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     group by p.manager
     having sum(act.amount) > ?
     """

@@ -16,12 +16,21 @@ def high_risk_products(combined_total: float):
     on p.product_id=act.product_id
     inner join risk_category risk
     on risk.id = p.risk_category
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where act.status='A'
     and risk.risk_level_descr = 'High'
     and act.seq=
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     group by p.product_id, p.descr
     having sum(act.amount) > ?
     """
@@ -35,6 +44,7 @@ def high_risk_products(combined_total: float):
     if rows:
         for row in rows:
             instances.append(
-                f"{row.product}. Reduce by {round(row.amount - max_amount)}")
+                f"{row.product}. Reduce by {round(row.amount - max_amount)}"
+            )
 
     return instances

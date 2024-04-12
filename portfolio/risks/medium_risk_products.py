@@ -12,14 +12,23 @@ def get_details(product_id: int):
     on p.product_id=act.product_id
     inner join account ac
     on ac.account_id=act.account_id
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where act.seq=
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     and act.product_id = ?
     and act.status='A'
     """
-    details = ''
+    details = ""
     total = 0
 
     with sl.connect(db) as conn:
@@ -53,6 +62,9 @@ def medium_risk_products(combined_total: float):
     on p.product_id=act.product_id
     inner join account ac
     on ac.account_id=act.account_id
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where 1=1
     and p.subtotal='N'
     and p.cash='N'
@@ -61,10 +73,16 @@ def medium_risk_products(combined_total: float):
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     group by p.product_id, p.descr
     having sum(act.amount) > ?
     """
-    #max_amount = combined_total * 0.1
+    # max_amount = combined_total * 0.1
     max_amount = 6500
     instances = []
     with sl.connect(db) as conn:
@@ -102,7 +120,7 @@ def medium_risk_products(combined_total: float):
 
     return instances
 
-    '''
+    """
     with sl.connect(db) as conn:
         df = pd.read_sql_query(sql, conn)
 
@@ -120,7 +138,7 @@ def medium_risk_products(combined_total: float):
         under_subscribed = df_original[(df_original.amount < limit)]
         df = under_subscribed.apply(lambda x: limit - x)
         print(df)
-    '''
+    """
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from portfolio.calc.instrument_status.update_status import update_instrument_sta
 from portfolio.calc.targets import targets
 from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
+from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
 from portfolio.services.http.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
@@ -33,6 +34,7 @@ def main():
     # totals = show_totals("cash")
     my_targets = targets()
     bitquery_balances = get_bitquery_balances(run_mode)
+    risk_violations = check_risks()
 
     html_file = create_html_report(
         changes=changes,
@@ -40,6 +42,7 @@ def main():
         targets=my_targets,
         bitquery_balances=bitquery_balances,
         instrument_status_changes=instrument_status_changes,
+        risk_violations=risk_violations,
     )
 
     subprocess.Popen([r"open", html_file])

@@ -18,6 +18,9 @@ def product_too_high_risk(combined_total: float):
     on ac.account_id = act.account_id
     inner join risk_category risk
     on risk.id = p.risk_category
+    inner join instrument_status inst
+    on inst.account_id=act.account_id
+    and inst.product_id=act.product_id
     where act.status='A'
     and act.dummy = 'N'
     and act.amount > 0
@@ -26,6 +29,12 @@ def product_too_high_risk(combined_total: float):
         (select max(seq) from actual_total
         where account_id=act.account_id
         and product_id=act.product_id)
+    and inst.effdt=(
+        select max(effdt) from instrument_status
+        where account_id=inst.account_id
+        and product_id=inst.product_id
+    )
+    and inst.instrument_status='OPEN'
     """
     instances = []
     with sl.connect(db) as conn:
@@ -36,6 +45,7 @@ def product_too_high_risk(combined_total: float):
     if rows:
         for row in rows:
             instances.append(
-                f"{row.account} {row.product}. Reduce by {round(row.amount)}")
+                f"{row.account} {row.product}. Reduce by {round(row.amount)}"
+            )
 
     return instances

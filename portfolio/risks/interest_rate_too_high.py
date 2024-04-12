@@ -1,6 +1,5 @@
 from icecream import ic
 from portfolio.calc.changes import get_accounts
-from portfolio.calc.targets import get_target_accounts
 from portfolio.utils.lib import get_last_run_id
 
 

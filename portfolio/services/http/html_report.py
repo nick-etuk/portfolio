@@ -6,15 +6,18 @@ from portfolio.calc import targets
 from portfolio.calc.bitquery_balances import get_bitquery_balances
 from portfolio.calc.changes import report_changes
 from portfolio.calc.totals import show_totals
-from portfolio.services.http.grey_out_pending import grey_out_pending
 from portfolio.utils.config import output_dir
 from portfolio.utils.init import current_logfile, init
 from portfolio.utils.lib import get_last_run_id
-from portfolio.risks.risks import check_risks
 
 
 def create_html_report(
-    changes, totals, targets, bitquery_balances, instrument_status_changes
+    changes,
+    totals,
+    targets,
+    bitquery_balances,
+    instrument_status_changes,
+    risk_violations,
 ):
     simple_html = """
     <html>
@@ -76,7 +79,6 @@ def create_html_report(
         tablefmt="html",
         headers=["Account", "Invested", "Expected", "Current", "Shortfall"],
     )
-    risk_violations = check_risks()
 
     bitquery_html = tabulate(
         bitquery_balances,
