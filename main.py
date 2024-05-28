@@ -9,6 +9,7 @@ from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
+from portfolio.services.api.covalent_api_generic import test_api
 from portfolio.services.http.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
 from portfolio.services.http.html_report import create_html_report
@@ -53,6 +54,8 @@ def main():
 
 if __name__ == "__main__":
     init()
+    test_api()
+    sys.exit(0)
 
     args_len = len(sys.argv)
     if args_len == 1:
@@ -72,6 +75,4 @@ if __name__ == "__main__":
         reload_account = sys.argv[3]
 
     log(f"Run mode:{run_mode}, run_id:{run_id}")
-    main()
-    # update_instrument_status(run_id)
-    # parse_html(run_mode, account_to_reload)
+    # main()

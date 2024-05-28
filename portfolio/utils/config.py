@@ -21,13 +21,13 @@ else:
 """
 
 host = socket.gethostname()
-
-host = "Nicholass-MacBook-Pro.local"
+print(f"Hostname: [{host}]")
 
 ini_file_path = {
     "Evesham": r"E:\\Google Drive\\asterlan sync\\config\\portfolio.ini",
     "Thinkpad-Dan": r"C:\\Users\\nick_\\Google Drive\\asterlan sync\\config\\portfolio.ini",
-    "Nicholass-MacBook-Pro.local": r"/Users/macbook-work/Documents/config/portfolio.ini",
+    # "Nicholass-MacBook-Pro.local": r"/Users/macbook-work/Documents/config/portfolio.ini",
+    "Nicholass-MacBook-Pro.local": r"/Users/macbook-work/Library/CloudStorage/OneDrive-Personal/data/portfolio/config/portfolio.ini",
 }
 
 config = configparser.ConfigParser()
@@ -52,6 +52,7 @@ binance_api_key = config["default"]["binance_api_key"]
 binance_api_secret = config["default"]["binance_api_secret"]
 cmc_api_key = config["default"]["cmc_api_key"]
 bitquery_api_key = config["default"]["bitquery_api_key"]
+covalent_api_key = config["default"]["covalent_api_key"]
 
 mysql_user = config["default"]["mysql_user"]
 mysql_password = config["default"]["mysql_password"]

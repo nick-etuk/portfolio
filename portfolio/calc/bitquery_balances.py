@@ -4,7 +4,7 @@ import json
 import os
 import sqlite3 as sl
 from icecream import ic
-from portfolio.utils.config import db, raw_html_dir, data_dir
+from portfolio.utils.config import db, log_dir
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.bitquery import get_wallet_balances
 from portfolio.services.api.coin_market_cap import get_multiple_prices
@@ -20,7 +20,7 @@ def get_bitquery_balances(run_mode):
     if run_mode != "normal":
         return result
 
-    output_dir = os.path.join(data_dir, "bitquery_balances")
+    output_dir = os.path.join(log_dir, "bitquery_balances")
     chains = ["ethereum", "bsc", "matic", "fantom", "avalanche", "moonbeam"]
     # Exclude shit coins with same symbol as legitimate coins
     exclusion_list = ["BUSDSWAP.NET"]
