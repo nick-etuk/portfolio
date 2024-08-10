@@ -5,7 +5,7 @@ from portfolio.utils.config import db, log_dir
 from portfolio.utils.lib import named_tuple_factory
 
 from datetime import datetime
-from portfolio.utils.config import covalent_api_key
+from portfolio.utils.config import moralis_api_key
 from portfolio.utils.init import init
 from icecream import ic
 
@@ -16,18 +16,18 @@ import json
 
 def fetch_balances(wallet_address: str, chain: str):
     """
-    curl -X GET https://api.covalenthq.com/v1/fantom-mainnet/address/0x3Cb83df6CF19831ca241159137b75C71D9087294/balances_v2/?key=cqt_rQpwkM8v7yrp8BXCRWYq3rFBqBPP \
+curl -X 'GET' \
+'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/defi/positions?chain=polygon' \
+-H 'accept: application/json' \
+--header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE'
 
-    curl -X GET https://api.covalenthq.com/v1/xy=k/supported_dexes/?key=cqt_rQpwkM8v7yrp8BXCRWYq3rFBqBPP \
-    -H 'Content-Type: application/json' \
-    -u YOUR_API_KEY: \
-    
-    curl -X GET https://api.covalenthq.com/v1/bsc-mainnet/xy=k/address/0x3Cb83df6CF19831ca241159137b75C71D9087294/pools/page/0/?key=cqt_rQpwkM8v7yrp8BXCRWYq3rFBqBPP  \
-    -H 'Content-Type: application/json' \
-    -u YOUR_API_KEY: \
-    
-    spirit swap pools:
-    https://api.covalenthq.com/v1/250/xy=k/spiritswap/pools/?key=cqt_rQpwkM8v7yrp8BXCRWYq3rFBqBPP
+curl --request GET \
+     --url 'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/defi/positions?chain=polygon' \
+     --header 'accept: application/json' \
+     --header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE' 
+
+
+     /{address}/erc20
     """
     host = "https://api.covalenthq.com"
     wallet_address = "0x3Cb83df6CF19831ca241159137b75C71D9087294"
