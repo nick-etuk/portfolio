@@ -9,7 +9,10 @@ from portfolio.calc.totals import show_totals
 from portfolio.calc.changes import report_changes
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
-from portfolio.services.api.covalent_api_generic import test_api
+
+# from portfolio.services.api.covalent_api_generic import test_api
+from portfolio.services.api.moralis import moralis_balances
+from portfolio.services.api.moralis_scan_protocols import scan_moralis_protocols
 from portfolio.services.http.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
 from portfolio.services.http.html_report import create_html_report
@@ -19,16 +22,24 @@ from portfolio.utils.init import init, log
 from portfolio.utils.config import db, webdriver, cypress_data_dir
 from portfolio.utils.next_run_id import next_run_id
 
+from portfolio.interactive.manual_balances.manual_balances import get_manual_balances
+
+
+def fetch_html():
+    status = ""
+    status = queue_html_accounts(run_id, run_mode)
+    if webdriver == "cypress":
+        fetch_html_cypress(run_id, run_mode)
+        parse_html(run_mode, reload_run_id, reload_account)
+
 
 def main():
     status = ""
     fetch_api(run_id, timestamp)
+    scan_moralis_protocols()
+    # status = fetch_html()
 
-    status = queue_html_accounts(run_id, run_mode)
-    if webdriver == "cypress":
-        fetch_html_cypress(run_id, run_mode)
-
-    parse_html(run_mode, reload_run_id, reload_account)
+    get_manual_balances(run_id, timestamp)
     instrument_status_changes = update_instrument_status(run_id)
     changes = report_changes()
     totals = show_totals("total")
@@ -54,7 +65,10 @@ def main():
 
 if __name__ == "__main__":
     init()
-    test_api()
+    # test_api()
+    # scan_protocols()
+    run_id, timestamp = next_run_id("normal")
+    get_manual_balances(run_id, timestamp)
     sys.exit(0)
 
     args_len = len(sys.argv)

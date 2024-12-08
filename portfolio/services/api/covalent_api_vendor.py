@@ -1,3 +1,8 @@
+"""
+Covelent now goldrush.
+Now costs $250 per month minimum.
+"""
+
 from covalent import CovalentClient
 
 # from portfolio.utils.config import covalent_api_key
