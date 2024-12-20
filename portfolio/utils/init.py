@@ -1,12 +1,13 @@
 import os
-from portfolio.utils.config import db, log_dir, log_file
+import sys
+from portfolio.utils.config import db, log_dir
 from datetime import datetime
 import logging
 import sqlite3 as sl
 from portfolio.utils.lib import named_tuple_factory
 
 
-class MyLogger():
+class MyLogger:
     def __init__(self):
         logger = None
 
@@ -16,12 +17,12 @@ class MyLogger():
 my_logger = MyLogger()
 
 
-def init():
-    my_logger.logger = logging.getLogger('simple_example')
+def init(run_id: int = 0):
+    my_logger.logger = logging.getLogger("simple_example")
     my_logger.logger.setLevel(logging.DEBUG)
 
     # create console handler and set level to debug
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
@@ -29,6 +30,9 @@ def init():
     # create formatter
     ch.setFormatter(formatter)
     my_logger.logger.addHandler(ch)
+    log_file = os.path.join(
+        log_dir, f'{run_id}_{datetime.now().strftime("%Y-%m-%d")}.log'
+    )
 
     fh = logging.FileHandler(log_file)
     my_logger.current_logfile = log_file
@@ -42,10 +46,32 @@ def current_logfile():
     return my_logger.current_logfile
 
 
-def log(summary: str, details: str = "", seq: int = 0):
+def info(message):
+    print("\033[92m" + message + "\033[0m")
+
+
+def warn(message):
+    log(message, level="WARN")
+    # print("\033[93m" + message + "\033[0m")
+
+
+def error(message):
+    log(message, level="ERROR")
+    # print("\033[91m" + message + "\033[0m")
+    sys.exit(1)
+
+
+def log(summary: str, details: str = "", level: str = "INFO", seq: int = 0):
     # logging.info(msg)
     msg = summary + " " + details if details else summary
-    my_logger.logger.info(msg)
+    if level == "INFO":
+        my_logger.logger.info(msg)
+    elif level == "WARN":
+        my_logger.logger.warn(msg)
+    elif level == "ERROR":
+        my_logger.logger.error(msg)
+    else:
+        my_logger.logger.info(msg)
 
     if seq:
         sql = """

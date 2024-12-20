@@ -11,73 +11,82 @@ from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
 
 # from portfolio.services.api.covalent_api_generic import test_api
-from portfolio.services.api.moralis import moralis_balances
-from portfolio.services.api.moralis_scan_protocols import scan_moralis_protocols
-from portfolio.services.http.fetch_html_cypress import fetch_html_cypress
+# from portfolio.services.api.moralis import moralis_balance
+from portfolio.services.api.check_moralis_for_new_protocols import (
+    check_moralis_for_new_protocols,
+)
+from portfolio.services.html.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
-from portfolio.services.http.html_report import create_html_report
-from portfolio.services.http.parse_html import parse_html
+from portfolio.services.html.html_report import create_html_report
+from portfolio.services.html.parse_html import parse_html
 
-from portfolio.utils.init import init, log
+from portfolio.utils.init import error, init, log
 from portfolio.utils.config import db, webdriver, cypress_data_dir
 from portfolio.utils.next_run_id import next_run_id
 
 from portfolio.interactive.manual_balances.manual_balances import get_manual_balances
+from portfolio.utils.utils import show_usage
 
 
 def fetch_html():
-    status = ""
-    status = queue_html_accounts(run_id, run_mode)
+    queue_html_accounts(run_id, run_mode)
     if webdriver == "cypress":
         fetch_html_cypress(run_id, run_mode)
         parse_html(run_mode, reload_run_id, reload_account)
 
 
 def main():
-    status = ""
-    fetch_api(run_id, timestamp)
-    scan_moralis_protocols()
-    # status = fetch_html()
-
     get_manual_balances(run_id, timestamp)
+    fetch_api(run_id, timestamp)
+    check_moralis_for_new_protocols()
+    fetch_html()
+
     instrument_status_changes = update_instrument_status(run_id)
-    changes = report_changes()
+    changes = report_changes(run_id)
     totals = show_totals("total")
     # totals = show_totals("cash")
     my_targets = targets()
-    bitquery_balances = get_bitquery_balances(run_mode)
+    # bitquery_balances = get_bitquery_balances(run_mode) todo: fix this
     risk_violations = check_risks()
 
     html_file = create_html_report(
         changes=changes,
         totals=totals,
         targets=my_targets,
-        bitquery_balances=bitquery_balances,
+        # bitquery_balances=bitquery_balances,
+        bitquery_balances="",
         instrument_status_changes=instrument_status_changes,
         risk_violations=risk_violations,
     )
 
     subprocess.Popen([r"open", html_file])
 
-    if status == "ERROR":
-        sys.exit(1)
+    # if status == "ERROR":        sys.exit(1)
 
 
 if __name__ == "__main__":
-    init()
-    # test_api()
-    # scan_protocols()
-    run_id, timestamp = next_run_id("normal")
-    get_manual_balances(run_id, timestamp)
-    sys.exit(0)
+    # init(415)
+    # changes = report_changes(415)
+    # ic(changes)
+    # sys.exit(0)
 
     args_len = len(sys.argv)
     if args_len == 1:
         run_mode = "normal"
     elif args_len > 1:
+        args_list = ["normal", "retry"]
+        if sys.argv[1] not in args_list:
+            error(f"Invalid argument: {sys.argv[1]}")
+            show_usage()
+            sys.exit(1)
+
         run_mode = sys.argv[1]
 
     run_id, timestamp = next_run_id(run_mode)
+    init(run_id)
+
+    # fetch_api(run_id, timestamp)
+    # sys.exit(0)
 
     reload_run_id = None
     if args_len == 3:
@@ -89,4 +98,5 @@ if __name__ == "__main__":
         reload_account = sys.argv[3]
 
     log(f"Run mode:{run_mode}, run_id:{run_id}")
-    # main()
+    main()
+    # if any ERROR messages for the current run_id, exit with error status

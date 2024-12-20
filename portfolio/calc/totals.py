@@ -289,7 +289,7 @@ def show_totals(mode):
     log(f"Solomon {mode}: {solomon_total}")
     log(f"Personal {mode}: {personal_total}")
     log(f"Combined {mode}: {total}")
-    print("totals table 0:", result_table, "\n")
+    # print("totals table 0:", result_table, "\n")
     return result_table
     # return np.sort(table, axis=0)
 

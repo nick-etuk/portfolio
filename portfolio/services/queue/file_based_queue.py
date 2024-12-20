@@ -66,7 +66,7 @@ def queue_html_accounts(run_id: int, run_mode: str, reload_account: int = None):
 
     accounts_array = []
     # ic(run_mode, run_id, reload_account)
-    print(sql)
+    # print(sql)
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()

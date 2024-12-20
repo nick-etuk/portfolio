@@ -8,13 +8,12 @@ from portfolio.utils.lib import (
     get_last_run_id,
     named_tuple_factory,
 )
-from portfolio.utils.init import init, log
+from portfolio.utils.init import init, log, info
 
 # from changes import change_str, get_last_run_id
 # from portfolio.services.api.ftx import ftx_balance
 from portfolio.services.api.binance import binance_balance
-
-# from portfolio.services.api.moralis import moralis_balance
+from portfolio.services.api.moralis import moralis_balance
 from portfolio.services.api.coin_market_cap import cmc_get_value
 from icecream import ic
 
@@ -27,7 +26,8 @@ def fetch_api(run_id, timestamp):
         timestamp = datetime.now().isoformat()
 
     sql = """
-        select act.account_id, act.dummy, ac.descr as account, 
+        select ac.account_id, ac.address, ac.descr as account,
+        act.dummy, 
         p.product_id, p.descr as product, p.data_source
         from actual_total act
         inner join account ac
@@ -39,12 +39,11 @@ def fetch_api(run_id, timestamp):
             where account_id=act.account_id
             and product_id=act.product_id
             )
-        /* and p.data_source in ('FTX_API', 'CMC') */
-        and p.data_source in ('CMC', 'MORALIS_API', 'BINANCE_API')
+        /* and p.data_source in ('CMC', 'MORALIS_API', 'BINANCE_API') */
+        and p.data_source in ('CMC', 'MORALIS_API')
         and act.status='A'
         """
     api = {
-        # 'FTX_API': ftx_balance,
         "BINANCE_API": binance_balance,
         "CMC": cmc_get_value,
         "MORALIS_API": moralis_balance,
@@ -56,11 +55,13 @@ def fetch_api(run_id, timestamp):
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        log(
-            f"data source, account, product: {row.data_source} {row.account} {row.product}"
-        )
+        info(f"{row.data_source} {row.account} {row.product}")
         try:
-            result = api[row.data_source](row.account_id, row.product_id, row.product)
+            result = api[row.data_source](
+                account_id=row.account_id,
+                product_id=row.product_id,
+                product=row.product,
+            )
             if result:
                 insert_sql = """
                 insert into actual_total (product_id, account_id, run_id, timestamp, amount, units, price, status, dummy)

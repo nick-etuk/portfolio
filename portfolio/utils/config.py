@@ -21,7 +21,6 @@ else:
 """
 
 host = socket.gethostname()
-print(f"Hostname: [{host}]")
 
 ini_file_path = {
     "Evesham": r"E:\\Google Drive\\asterlan sync\\config\\portfolio.ini",
@@ -40,7 +39,7 @@ if not os.path.exists(db):
     raise FileNotFoundError(f"sqlite database file not found at {db}")
 
 log_dir = config[host]["log_dir"]
-log_file = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
+# log_file = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
 
 output_dir = os.path.join(data_dir, "output_reports")
 raw_html_dir = os.path.join(log_dir, "raw_html")

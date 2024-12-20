@@ -31,7 +31,8 @@ def long_pause():
 
 def first_number(str: str):
     result = None
-    numbers = re.findall(r"\d+", str)
+    # numbers = re.findall(r"\d+", str)
+    numbers = re.findall(r"\d+\.?\d*", str)
     if numbers:
         result = numbers[0]
 
@@ -46,6 +47,17 @@ def short_pause():
     pause_length = 10
     # log(f"Sleeping for {pause_length} seconds")
     time.sleep(pause_length)
+
+
+def show_usage():
+    usage = """
+    Arguments:
+    retry               Try again to parse failed runs. Does not fetch html.
+    reload              Parse the last run_id. Does not fetch html.
+    reload <run_id>     Parse the given run_id. Does not fetch html.
+    normal or no args   Fetch html, call APIs, generate next run_id.
+    """
+    print(usage)
 
 
 if __name__ == "__main__":

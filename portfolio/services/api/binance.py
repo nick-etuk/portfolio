@@ -7,7 +7,7 @@ from icecream import ic
 
 
 def binance_balance(account_id, product_id, product):
-    client = Client(key=binance_api_key, secret=binance_api_secret)
+    client = Client(api_key=binance_api_key, api_secret=binance_api_secret)
     result = client.savings_account()
 
     asset_lookup = {"Binance Earn BUSD": "BUSD", "Binance Earn BNB": "BNB"}

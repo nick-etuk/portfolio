@@ -6,7 +6,7 @@ from portfolio.utils.lib import named_tuple_factory
 
 from datetime import datetime
 from portfolio.utils.config import moralis_api_key
-from portfolio.utils.init import init
+from portfolio.utils.init import init, log, info
 from icecream import ic
 
 from requests import Request, Session
@@ -14,7 +14,7 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 
 
-def fetch_balances(wallet_address: str, chain: str):
+def call_moralis_api(wallet_address: str, chain: str):
     """
     moralis wallet profit & loss
 
@@ -57,7 +57,7 @@ curl --request GET \
 --header "X-API-Key: $moralis_api_key"
     """
     # wallet_address = "0x3Cb83df6CF19831ca241159137b75C71D9087294"
-    ic(chain)
+    # ic(chain)
     host = "https://deep-index.moralis.io"
     endpoint = f"/api/v2.2/wallets/{wallet_address}/defi/positions?chain={chain}"
     headers = {
@@ -70,26 +70,25 @@ curl --request GET \
     try:
         response = session.get(f"{host}{endpoint}")
         status_code = response.status_code
-        ic(status_code)
+        # ic(status_code)
         if status_code != 200:
-            print(f"Moralis API error: {status_code} - {response.text}")
+            print(f"Moralis API error {status_code} on chain {chain}:")
+            print(f"{response.text}")
             return None
 
-        ic(response.text)
+        # ic(response.text)
         return json.loads(response.text)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
 
 
 def extract_balances(response: object, account: str, chain: str):
-    ic(response)
     for protocol in response:
         instrument = protocol["protocol_name"]
-        ic(instrument)
         position = protocol["position"]
-        ic(position)
         balance_usd = position["balance_usd"]
-        print(f"{account} \t {chain} \t {instrument} \t\t\t {balance_usd}")
+        info(f"{account} \t {chain} \t {instrument} \t\t\t {balance_usd}")
+        return balance_usd
 
 
 def save_response(response: object, account: str, chain: str) -> str:
@@ -100,7 +99,6 @@ def save_response(response: object, account: str, chain: str) -> str:
         output_dir, f"{account.replace(' ','_')}_{chain}_{timestamp_str}.json"
     )
     output_str = json.dumps(response, indent=4)
-    ic(output_str)
     with open(filename, "w") as f:
         f.write(output_str)
     return filename
@@ -113,15 +111,39 @@ def load_last_response():
     return response
 
 
-def moralis_balances():
-    account = "Solomon Medium"
-    chain = "polygon"
-    wallet_address = "0x3Cb83df6CF19831ca241159137b75C71D9087294"
+def moralis_balance(account_id, product_id, product):
+    sql = """
+    select ac.address, ac.descr as account,
+    p.chain,
+    act.amount as old_amount
+    from actual_total act
+    inner join account ac
+    on ac.account_id=act.account_id
+    inner join product p
+    on p.product_id=act.product_id
+    where act.account_id=?
+    and p.product_id=?
+    and act.seq=
+        (select max(seq) from actual_total
+        where account_id=act.account_id
+        and product_id=act.product_id
+        )
+    and act.status='A'
+    """
+    # account = "Solomon Medium"
+    # chain = "polygon"
+    # wallet_address = "0x3Cb83df6CF19831ca241159137b75C71D9087294"
 
-    # response = fetch_balances(wallet_address, chain)
-    response = load_last_response()
-    # save_response(response, account, chain)
-    extract_balances(response, account, chain)
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        row = c.execute(sql, (account_id, product_id)).fetchone()
+
+    response = call_moralis_api(wallet_address=row.address, chain=row.chain)
+    # response = load_last_response()
+    save_response(response, row.account, row.chain)
+    amount = extract_balances(response, row.account, row.chain)
+    return {"price": 0, "units": 0, "value": amount}
 
 
 if __name__ == "__main__":

@@ -68,7 +68,7 @@ def exec_sql(select_sql: str):
         rows = c.execute(select_sql).fetchall()
         if rows:
             c.execute(f"{insert_sql} {select_sql}")
-            log(f"Inserted {len(rows)} rows")
+            # log(f"Inserted {len(rows)} rows")
 
             rows_output = tabulate(
                 rows,

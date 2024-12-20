@@ -8,9 +8,10 @@ from portfolio.utils.lib import (
 from portfolio.utils.init import log
 
 
-def get_account(account_id, run_id, timestamp):
+def get_manual_balance(account_id, run_id, timestamp):
     product_sql = """
-    select p.product_id, p.descr as product, act.amount
+    select p.product_id, p.descr as product, act.amount,
+    ac.descr as account, ac.address
     from actual_total act
     inner join account ac
     on ac.account_id=act.account_id
@@ -23,7 +24,7 @@ def get_account(account_id, run_id, timestamp):
         and product_id=act.product_id
         )
     and act.status='A'
-    and p.data_source in ('MANUAL', 'HTML')
+    and p.data_source in ('MANUAL')
     """
 
     with sl.connect(db) as conn:
@@ -32,6 +33,7 @@ def get_account(account_id, run_id, timestamp):
         rows = c.execute(product_sql, (account_id,)).fetchall()
 
     for row in rows:
+        print(f"{row.account} {row.address}")
         amount = input(f"{row.product} ({row.amount}):")
         if not amount:
             continue

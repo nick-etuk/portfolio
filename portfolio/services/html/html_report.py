@@ -55,15 +55,15 @@ def create_html_report(
     html_template = simple_html
 
     changes_table = []
-    headers = ["Account", "Instrument", "Value", "Change"]
+    headers = ["Account", "Product", "Value", "Change"]
 
-    for instrument in changes:
+    for change_row in changes:
         changes_table.append(
             [
-                instrument["account"],
-                instrument["product"],
-                round(instrument["amount"]),
-                instrument["apr"],
+                change_row["account"],
+                change_row["product"],
+                round(change_row["amount"]),
+                change_row["change"],
             ]
         )
 

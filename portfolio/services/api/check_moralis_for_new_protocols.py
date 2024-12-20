@@ -5,14 +5,29 @@ from portfolio.utils.lib import (
 )
 from portfolio.utils.init import init, log
 from portfolio.services.api.moralis import (
-    fetch_balances,
+    call_moralis_api,
     save_response,
     extract_balances,
 )
 from icecream import ic
 
 
-def scan_moralis_protocols():
+def update_data_source(product_id):
+    update_sql = """
+    update product
+    set data_source='MORALIS_API'
+    where product_id=?
+    """
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        c.execute(
+            update_sql,
+            (product_id,),
+        )
+
+
+def check_moralis_for_new_protocols():
     sql = """
         select distinct ac.account_id, ac.descr as account, ac.address,
         p.product_id, p.descr as product, p.chain
@@ -48,15 +63,16 @@ def scan_moralis_protocols():
 
     for row in rows:
         chain = moralis_chain[row.chain]
-        log(f"{row.account} {row.product} on {chain}")
+        # log(f"{row.account} {row.product} on {chain}")
 
-        response = fetch_balances(row.address, chain)
+        response = call_moralis_api(row.address, chain)
         if response:
-            log("New balance found on Moralis")
+            log(f"New protocol found on Moralis: {chain} {row.product}")
             save_response(response, row.account, chain)
             extract_balances(response, row.account, chain)
+            update_data_source(row.product_id)
 
 
 if __name__ == "__main__":
     init()
-    scan_moralis_protocols()
+    check_moralis_for_new_protocols()
