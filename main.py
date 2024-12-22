@@ -12,8 +12,11 @@ from portfolio.services.api.fetch_api import fetch_api
 
 # from portfolio.services.api.covalent_api_generic import test_api
 # from portfolio.services.api.moralis import moralis_balance
-from portfolio.services.api.check_moralis_for_new_protocols import (
+from portfolio.services.api.moralis.check_moralis_for_new_protocols import (
     check_moralis_for_new_protocols,
+)
+from portfolio.services.api.moralis.wallet_token_values import (
+    moralis_wallet_token_values,
 )
 from portfolio.services.html.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
@@ -38,8 +41,9 @@ def fetch_html():
 def main():
     get_manual_balances(run_id, timestamp)
     fetch_api(run_id, timestamp)
-    check_moralis_for_new_protocols()
     fetch_html()
+    moralis_wallet_token_values()
+    check_moralis_for_new_protocols()
 
     instrument_status_changes = update_instrument_status(run_id)
     changes = report_changes(run_id)
@@ -85,8 +89,8 @@ if __name__ == "__main__":
     run_id, timestamp = next_run_id(run_mode)
     init(run_id)
 
-    # fetch_api(run_id, timestamp)
-    # sys.exit(0)
+    moralis_wallet_token_values()
+    sys.exit(0)
 
     reload_run_id = None
     if args_len == 3:

@@ -1,0 +1,39 @@
+
+curl -X 'GET' \
+    'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/profitability?chain=eth' \
+-H 'accept: application/json' \
+--header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE'
+
+    
+    """
+    """
+curl -X 'GET' \
+'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/defi/positions?chain=polygon' \
+-H 'accept: application/json' \
+--header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE'
+
+curl --request GET \
+     --url 'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/defi/positions?chain=polygon' \
+     --header 'accept: application/json' \
+     --header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE' 
+
+    curl --request GET \
+     --url 'https://deep-index.moralis.io/api/v2.2/wallets/0x3cb83df6cf19831ca241159137b75c71d9087294/defi/quickswap-v2/positions?chain=polygon' \
+     --header 'accept: application/json' \
+     --header 'X-API-Key: 
+     eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE' 
+
+
+     /{address}/erc20
+    
+     defi summary endpoint
+     ----------------------
+     kinda works. only shows uniswap for solomon medium risk.
+wallet_address='0x3cb83df6cf19831ca241159137b75c71d9087294'
+chain='polygon'
+moralis_api_key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjZjOTc2YTg5LTBkNmYtNDEzNy04MDg1LWU5ZDkyMWZjZWFjNSIsIm9yZ0lkIjoiMjU1Mjg3IiwidXNlcklkIjoiMjU5MDg1IiwidHlwZUlkIjoiNjU1NTg5ZjAtOTAwMC00NDY3LWFhZGMtZDRlNDE3ZTk5MTAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjI3MDA0NDQsImV4cCI6NDg3ODQ2MDQ0NH0.vKbhA1wUakQ0syKnREahurq5lIoq5_251DqamYjQ3DE'
+curl --request GET \
+--url "https://deep-index.moralis.io/api/v2.2/wallets/$wallet_address/defi/summary?chain=$chain" \
+--header 'accept: application/json' \
+--header "X-API-Key: $moralis_api_key"
+ 

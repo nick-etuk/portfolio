@@ -5,7 +5,7 @@ from portfolio.utils.lib import named_tuple_factory
 
 from datetime import datetime
 from portfolio.utils.config import cmc_api_key
-from portfolio.utils.init import init
+from portfolio.utils.init import init, warn
 from icecream import ic
 
 from requests import Request, Session
@@ -32,8 +32,6 @@ def call_cmc_api(symbols: str):
 
     session = Session()
     session.headers.update(headers)
-
-    price = 0
     try:
         response = session.get(url + endpoint, params=parameters)
         return json.loads(response.text)
@@ -44,7 +42,7 @@ def call_cmc_api(symbols: str):
 def get_price(symbol: str):
     response = call_cmc_api(symbol)
     if "data" not in response:
-        print(f"=>api.get_price: No Coin Market Cap API data for {symbol}")
+        warn(f"=>api.get_price: No Coin Market Cap API data for {symbol}")
         return 0
     price_data = response["data"][symbol.upper()]
     # ic(price_data)
@@ -56,13 +54,18 @@ def get_price(symbol: str):
 
 
 def get_multiple_prices(symbols: str):
+    # symbols is a comma separated list of symbols
     result = {}
     response = call_cmc_api(symbols)
     # ic(response)
     if "data" not in response:
-        print(f"api.get_multiple_prices: No Coin Market Cap API data for {symbols}")
-        return {}
+        print(f"No Coin Market Cap API data for {symbols}")
+        print(response)
+        return None
     for symbol in symbols.split(","):
+        if symbol not in response["data"]:
+            # warn(f"bp 2 No Coin Market Cap API data for {symbol}")
+            continue
         price_data = response["data"][symbol]
         # ic(price_data)
         if price_data:
@@ -77,12 +80,12 @@ def cmc_get_value(account_id, product_id, product):
     price = get_price(product_id)
 
     sql = """
-    Select ac.units
-    from actual_total ac
+    Select act.units
+    from actual_total act
     where seq = (
         select max(seq) from actual_total
-        where account_id=ac.account_id
-        and product_id=ac.product_id
+        where account_id=act.account_id
+        and product_id=act.product_id
     )
     and account_id=?
     and product_id=?

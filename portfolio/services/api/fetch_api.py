@@ -13,7 +13,7 @@ from portfolio.utils.init import init, log, info
 # from changes import change_str, get_last_run_id
 # from portfolio.services.api.ftx import ftx_balance
 from portfolio.services.api.binance import binance_balance
-from portfolio.services.api.moralis import moralis_balance
+from portfolio.services.api.moralis.defi_balances import moralis_defi_balance
 from portfolio.services.api.coin_market_cap import cmc_get_value
 from icecream import ic
 
@@ -46,7 +46,7 @@ def fetch_api(run_id, timestamp):
     api = {
         "BINANCE_API": binance_balance,
         "CMC": cmc_get_value,
-        "MORALIS_API": moralis_balance,
+        "MORALIS_API": moralis_defi_balance,
     }
 
     with sl.connect(db) as conn:

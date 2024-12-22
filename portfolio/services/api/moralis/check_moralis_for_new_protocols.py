@@ -4,11 +4,12 @@ from portfolio.utils.lib import (
     named_tuple_factory,
 )
 from portfolio.utils.init import init, log
-from portfolio.services.api.moralis import (
+from portfolio.services.api.moralis.call_api import (
     call_moralis_api,
     save_response,
-    extract_balances,
 )
+from portfolio.services.api.moralis.moralis_config import moralis_chain_convertion
+from portfolio.services.api.moralis.defi_balances import extract_balances
 from icecream import ic
 
 
@@ -47,28 +48,19 @@ def check_moralis_for_new_protocols():
         and p.data_source in ('HTML')
         """
 
-    moralis_chain = {
-        "avalanche": "avalanche",
-        "ftm": "fantom",
-        "eth": "ethereum",
-        "bsc": "bsc",
-        "matic": "polygon",
-        "op": "optimism",
-    }
-
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        chain = moralis_chain[row.chain]
+        chain = moralis_chain_convertion[row.chain]
         # log(f"{row.account} {row.product} on {chain}")
 
-        response = call_moralis_api(row.address, chain)
+        response = call_moralis_api("defi", row.address, chain)
         if response:
             log(f"New protocol found on Moralis: {chain} {row.product}")
-            save_response(response, row.account, chain)
+            save_response(response, f"defi_{row.account}", chain)
             extract_balances(response, row.account, chain)
             update_data_source(row.product_id)
 
