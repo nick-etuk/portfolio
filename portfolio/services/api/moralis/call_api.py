@@ -1,3 +1,4 @@
+import glob
 import os
 from datetime import datetime
 from portfolio.utils.config import moralis_api_key, log_dir
@@ -51,9 +52,18 @@ def save_response(response: object, account: str, chain: str) -> str:
     return filename
 
 
-def load_last_response():
-    filename = "/Users/macbook-work/Documents/del/log/portfolio/moralis_balances/Solomon_Medium_polygon_2024-12-08_11_11_02.json"
-    with open(filename, "r") as f:
+def load_last_response(account: str, chain: str):
+    # filename = "/Users/macbook-work/Documents/del/log/portfolio/moralis_balances/Solomon_Medium_polygon_2024-12-08_11_11_02.json"
+    # ic(account, chain)
+    output_dir = os.path.join(log_dir, "moralis_balances")
+    os.makedirs(output_dir, exist_ok=True)
+    filespec = os.path.join(output_dir, f"{account.replace(' ','_')}_{chain}_*.json")
+    list_of_files = glob.glob(filespec)
+    if not list_of_files:
+        return None
+    latest_file = max(list_of_files, key=os.path.getctime)
+    ic(latest_file)
+    with open(latest_file, "r") as f:
         response = json.loads(f.read())
     return response
 

@@ -5,14 +5,11 @@ from icecream import ic
 
 
 def add_cmc_prices(symbols: dict):
-    # print(f"{__name__}.{inspect.stack()[0][3]}")
     if not symbols:
         return symbols
-    # symbol_names = ",".join([symbol["symbol"] for symbol in symbols])
     symbol_names = ",".join(symbols.keys())
-    ic(symbol_names)
+    # ic(symbol_names)
     multiple_prices = get_multiple_prices(symbol_names)
-    # ic(multiple_prices)
     if not multiple_prices:
         warn(f"No Coin Market Cap API data for {symbol_names}")
         return symbols
@@ -32,5 +29,4 @@ def add_cmc_prices(symbols: dict):
             "value": units * price,
         }
         new_dict[symbol_name] = new_item
-    # ic(new_dict)
     return new_dict

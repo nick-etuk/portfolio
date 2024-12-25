@@ -9,7 +9,7 @@ from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.html.parse_queue_row import parse_queue_row
 
 
-def parse_html(run_mode: str, reload_run_id: int = None, reload_account: int = None):
+def parse_html(run_mode: str, run_id: int = 0, reload_account: int = None):
     print(f"{__name__}.{inspect.stack()[0][3]}")
     sql = """
         select q.queue_id, q.run_id, q.timestamp, q.account_id, ac.descr as account, q.filename 
@@ -32,8 +32,8 @@ def parse_html(run_mode: str, reload_run_id: int = None, reload_account: int = N
             and ac.address <> ' '
             """
 
-        if reload_run_id:
-            sql += f"\n and q.run_id={reload_run_id}"
+        if run_id:
+            sql += f"\n and q.run_id={run_id}"
         else:
             sql += "\n and q.run_id=(select max(run_id) from html_parse_queue)"
 

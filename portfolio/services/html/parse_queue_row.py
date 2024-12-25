@@ -124,7 +124,7 @@ def parse_queue_row(
                         account_id,
                         run_id,
                         timestamp,
-                        amount,
+                        round(amount),
                         "A",
                     ),
                 )

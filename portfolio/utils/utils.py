@@ -56,6 +56,7 @@ def show_usage():
     reload              Parse the last run_id. Does not fetch html.
     reload <run_id>     Parse the given run_id. Does not fetch html.
     normal or no args   Fetch html, call APIs, generate next run_id.
+    dry_run             No fetching of html, no APIs calls. Run_id = 0
     """
     print(usage)
 

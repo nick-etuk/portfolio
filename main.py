@@ -2,7 +2,6 @@ import subprocess
 import sys
 
 from icecream import ic
-from portfolio.calc.bitquery_balances import get_bitquery_balances
 from portfolio.calc.instrument_status.update_status import update_instrument_status
 from portfolio.calc.targets import targets
 from portfolio.calc.totals import show_totals
@@ -10,8 +9,6 @@ from portfolio.calc.changes import report_changes
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
 
-# from portfolio.services.api.covalent_api_generic import test_api
-# from portfolio.services.api.moralis import moralis_balance
 from portfolio.services.api.moralis.check_moralis_for_new_protocols import (
     check_moralis_for_new_protocols,
 )
@@ -23,8 +20,8 @@ from portfolio.services.queue.file_based_queue import queue_html_accounts
 from portfolio.services.html.html_report import create_html_report
 from portfolio.services.html.parse_html import parse_html
 
-from portfolio.utils.init import error, init, log
-from portfolio.utils.config import db, webdriver, cypress_data_dir
+from portfolio.utils.init import error, info, init, log
+from portfolio.utils.config import webdriver
 from portfolio.utils.next_run_id import next_run_id
 
 from portfolio.interactive.manual_balances.manual_balances import get_manual_balances
@@ -35,17 +32,17 @@ def fetch_html():
     queue_html_accounts(run_id, run_mode)
     if webdriver == "cypress":
         fetch_html_cypress(run_id, run_mode)
-        parse_html(run_mode, reload_run_id, reload_account)
+        parse_html(run_mode, run_id, reload_account)
 
 
 def main():
     get_manual_balances(run_id, timestamp)
     fetch_api(run_id, timestamp)
     fetch_html()
-    moralis_wallet_token_values()
+    moralis_wallet_token_values(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
     check_moralis_for_new_protocols()
 
-    instrument_status_changes = update_instrument_status(run_id)
+    instrument_status_changes = update_instrument_status(run_mode, run_id)
     changes = report_changes(run_id)
     totals = show_totals("total")
     # totals = show_totals("cash")
@@ -78,7 +75,7 @@ if __name__ == "__main__":
     if args_len == 1:
         run_mode = "normal"
     elif args_len > 1:
-        args_list = ["normal", "retry"]
+        args_list = ["normal", "retry", "reload", "dry_run"]
         if sys.argv[1] not in args_list:
             error(f"Invalid argument: {sys.argv[1]}")
             show_usage()
@@ -87,20 +84,20 @@ if __name__ == "__main__":
         run_mode = sys.argv[1]
 
     run_id, timestamp = next_run_id(run_mode)
-    init(run_id)
-
-    moralis_wallet_token_values()
-    sys.exit(0)
-
-    reload_run_id = None
     if args_len == 3:
-        reload_run_id = sys.argv[2]
-        run_id = reload_run_id
+        run_id = sys.argv[2]
 
-    reload_account = None
+    reload_account = ""
     if args_len == 4:
         reload_account = sys.argv[3]
 
-    log(f"Run mode:{run_mode}, run_id:{run_id}")
+    init(run_id)
+    log(f"Run mode {run_mode}, run_id {run_id}")
+
+    # instrument_status_changes = update_instrument_status(run_mode, run_id)
+    # ic(instrument_status_changes)
+    # moralis_wallet_token_values(run_mode="dry_run", run_id=run_id, timestamp=timestamp)
+    # sys.exit(0)
+
     main()
     # if any ERROR messages for the current run_id, exit with error status

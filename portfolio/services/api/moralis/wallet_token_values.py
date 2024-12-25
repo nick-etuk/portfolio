@@ -1,25 +1,30 @@
 import re
 import sqlite3 as sl
+from portfolio.services.api.moralis.wallet_chains import get_wallet_chains
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.moralis.moralis_config import (
-    moralis_chains,
-    moralis_chain_reverse_convertion,
+    moralis_wallet_chains,
     spam_indicators,
     excluded_symbols,
     swap_symbol_names,
     existing_moralis_products,
+    stable_coins,
 )
-from portfolio.services.api.moralis.call_api import call_moralis_api, save_response
+from portfolio.services.api.moralis.call_api import (
+    call_moralis_api,
+    load_last_response,
+    save_response,
+)
 from portfolio.services.api.moralis.add_cmc_prices import add_cmc_prices
 from portfolio.utils.init import init, log, info, warn
 from icecream import ic
 
 
-def save_moralis_product(symbol_name, chain):
+def insert_product(symbol_name, chain):
     insert_sql = """
-    insert into product (product_id, descr, data_source, chain, volatile) 
-    values (?, ?, ?, 'Y')
+    insert into product (product_id, descr, data_source, chain, cash, volatile) 
+    values (?, ?, ?, ?, 'Y', ?)
     """
 
     if symbol_name in existing_moralis_products:
@@ -27,30 +32,73 @@ def save_moralis_product(symbol_name, chain):
 
     existing_moralis_products.append(symbol_name)
 
+    volatile = "N" if symbol_name in stable_coins else "Y"
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
         c.execute(
             insert_sql,
-            (symbol_name, symbol_name, "MORALIS_TOKEN_API", chain),
+            (symbol_name, symbol_name, "MORALIS_TOKEN_API", chain, volatile),
         )
         conn.commit()
 
 
-def save_balances(account_id, account, symbols: dict):
+def insert_transaction(run_id, timestamp, account_id, symbol: dict):
+    seq_sql = """
+    select max(seq) as max_seq
+    from actual_total
+    """
+    symbol_name = symbol["symbol"]
+    value = symbol["value"]
+
+    max_seq = 0
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        row = c.execute(seq_sql).fetchone()
+
+    if row:
+        # ic(row)
+        max_seq = row.max_seq
+
+    # ic(max_seq)
+    max_seq += 1
+
     insert_sql = """
     insert into actual_total (
-        account_id, product_id, seq, amount, units, price, status
-    ) values (
+        seq, run_id, account_id, product_id, amount, units, price, status, timestamp) 
+    values (
+        ?,
+        ?,
         ?, 
         ?, 
-        (select max(seq) + 1 from actual_total where account_id=? and product_id=?), 
         ?, 
         ?, 
-        'A'
+        ?, 
+        'A',
+        ?
     )
     """
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        c.execute(
+            insert_sql,
+            (
+                max_seq,
+                run_id,
+                account_id,
+                symbol_name,
+                round(value),
+                symbol["units"],
+                symbol["price"],
+                timestamp,
+            ),
+        )
+        conn.commit()
 
+
+def save_balances(run_mode, run_id, timestamp, account_id, account, symbols: dict):
     for symbol_name in symbols:
         symbol = symbols[symbol_name]
         if "value" not in symbol:
@@ -64,24 +112,16 @@ def save_balances(account_id, account, symbols: dict):
         if value < 1:
             # print(f"Skipping {symbol_name} with value {value}")
             continue
+        value = round(value)
         info(
             f"Moralis token API: {account} \t {symbol_name} {symbol['chain']} \t {value}"
         )
-        continue
-        save_moralis_product(symbol_name, symbol["chain"])
-        with sl.connect(db) as conn:
-            conn.row_factory = named_tuple_factory
-            c = conn.cursor()
-            c.execute(
-                insert_sql,
-                (
-                    account_id,
-                    symbol_name,
-                    symbol["units"],
-                    value,
-                ),
-            )
-            conn.commit()
+        if run_mode == "dry_run":
+            continue
+        insert_product(symbol_name, symbol["chain"])
+        insert_transaction(
+            run_id=run_id, timestamp=timestamp, account_id=account_id, symbol=symbol
+        )
 
 
 def extract_token_units(response: object, chain: str):
@@ -107,11 +147,12 @@ def extract_token_units(response: object, chain: str):
         if symbol_name in swap_symbol_names:
             symbol_name = swap_symbol_names[symbol_name]
 
-        my_chain = moralis_chain_reverse_convertion[chain]
-        return {"symbol": symbol_name, "units": units, "chain": my_chain}
+        # my_chain = moralis_chain_reverse_lookup(chain)
+        return {"symbol": symbol_name, "units": units, "chain": chain}
 
 
-def moralis_wallet_token_values():
+def moralis_wallet_token_values(run_mode, run_id, timestamp):
+
     account_sql = """
     select ac.account_id, ac.address, ac.descr as account
     from account ac
@@ -124,15 +165,24 @@ def moralis_wallet_token_values():
 
     for account_row in account_rows:
         symbols = {}
-        for chain in moralis_chains:
-            # info(f"{account_row.account} {chain}")
-            response = call_moralis_api(
-                "tokens", wallet_address=account_row.address, chain=chain
-            )
-            # response = load_last_response()
-            if not response:
-                continue
-            save_response(response, f"tokens_{account_row.account}", chain)
+        # for chain in moralis_chain.values():
+        # chains = get_wallet_chains()
+        # ic(chains)
+        if account_row.account_id not in moralis_wallet_chains:
+            continue
+        for chain in moralis_wallet_chains[account_row.account_id]:
+            if run_mode == "dry_run":
+                response = load_last_response(f"tokens_{account_row.account}", chain)
+                if not response:
+                    continue
+            else:
+                response = call_moralis_api(
+                    "tokens", wallet_address=account_row.address, chain=chain
+                )
+                if not response:
+                    continue
+                save_response(response, f"tokens_{account_row.account}", chain)
+
             for response_row in response:
                 if "balance" in response_row:
                     token_obj = extract_token_units(response_row, chain)
@@ -141,7 +191,7 @@ def moralis_wallet_token_values():
                     # ic(token_obj)
                     symbol_name = token_obj["symbol"]
                     if symbol_name in symbols:
-                        # print(f"Duplicate entry for {symbol_name} on {moralis_chain_reverse_convertion[chain]}")
+                        # print(f"Duplicate entry for {symbol_name} on {chain}")
                         symbols[symbol_name]["units"] += token_obj["units"]
                         # print(f"Incrementing existing units by {token_obj['units']} to {symbols[symbol_name]['units']}")
                         continue
@@ -150,7 +200,14 @@ def moralis_wallet_token_values():
         # ic(symbols)
         symbols_with_prices = add_cmc_prices(symbols)
         # ic(symbols_with_prices)
-        save_balances(account_row.account_id, account_row.account, symbols_with_prices)
+        save_balances(
+            run_mode=run_mode,
+            run_id=run_id,
+            timestamp=timestamp,
+            account_id=account_row.account_id,
+            account=account_row.account,
+            symbols=symbols_with_prices,
+        )
 
 
 if __name__ == "__main__":

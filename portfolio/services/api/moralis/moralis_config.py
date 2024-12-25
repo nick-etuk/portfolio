@@ -1,37 +1,36 @@
+import inspect
 import sqlite3 as sl
+from portfolio.services.api.moralis.wallet_chains import get_wallet_chains
 from portfolio.utils.config import db
+from portfolio.utils.init import warn
 from portfolio.utils.lib import named_tuple_factory
 from icecream import ic
 
-moralis_chains = [
-    "arbitrum",
-    "avalanche",
-    "bsc",
-    "eth",
-    "fantom",
-    "polygon",
-    "optimism",
-]
 
-moralis_chain_convertion = {
+moralis_chain = {
+    "arbitrum": "arbitrum",
     "avalanche": "avalanche",
-    "ftm": "fantom",
-    "eth": "eth",
     "bsc": "bsc",
+    "eth": "eth",
+    "ftm": "fantom",
     "matic": "polygon",
     "op": "optimism",
-    "arbitrum": "arbitrum",
 }
 
-moralis_chain_reverse_convertion = {
-    "avalanche": "avalanche",
-    "fantom": "ftm",
-    "eth": "eth",
-    "bsc": "bsc",
-    "polygon": "matic",
-    "optimism": "op",
-    "arbitrum": "arbitrum",
-}
+moralis_wallet_chains = get_wallet_chains()
+
+
+def moralis_chain_reverse_lookup(lookup_value):
+    try:
+        key = next(key for key, value in moralis_chain.items() if value == lookup_value)
+    except StopIteration:
+        calling_function = inspect.stack()[1][3]
+        warn(
+            f"{calling_function} moralis_chain_reverse_lookup: value {lookup_value} not found"
+        )
+        key = None
+    return key
+
 
 spam_indicators = [
     "visit",
@@ -68,6 +67,97 @@ swap_symbol_names = {
     "USDt": "USDT",
 }
 
+stable_coins = [
+    "USDT",
+    "USDC",
+    "DAI",
+    "BUSD",
+    "TUSD",
+    "sUSD",
+    "mUSD",
+    "USDP",
+    "FRAX",
+    "FRAX",
+    "UST",
+    "LUSD",
+    "USDN",
+    "USTC",
+    "FEI",
+    "IRON",
+    "DSD",
+    "ESD",
+    "sEUR",
+    "sGBP",
+    "sCHF",
+    "sJPY",
+    "sAUD",
+    "sCAD",
+    "sKRW",
+    "sCNY",
+    "sRUB",
+    "sMXN",
+    "sBRL",
+    "sSGD",
+    "sHKD",
+    "sNZD",
+    "sSEK",
+    "sNOK",
+    "sDKK",
+    "sZAR",
+    "sINR",
+    "sAED",
+    "sSAR",
+    "sQAR",
+    "sKWD",
+    "sBHD",
+    "sOMR",
+    "sXAU",
+    "sXAG",
+    "sXPT",
+    "sXPD",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+    "sXPT",
+    "sXBR",
+    "sXCU",
+    "sXAG",
+    "sXAU",
+    "sXPD",
+]
+
 existing_moralis_products = []
 product_sql = """
 select descr as product
@@ -80,5 +170,3 @@ with sl.connect(db) as conn:
     rows = c.execute(product_sql).fetchall()
     for row in rows:
         existing_moralis_products.append(row.product)
-
-ic(existing_moralis_products)

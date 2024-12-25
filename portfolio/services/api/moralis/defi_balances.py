@@ -2,7 +2,7 @@ import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.services.api.moralis.call_api import call_moralis_api, save_response
-from portfolio.services.api.moralis.moralis_config import moralis_chain_convertion
+from portfolio.services.api.moralis.moralis_config import moralis_chain
 from portfolio.utils.init import init, log, info
 from icecream import ic
 
@@ -44,7 +44,7 @@ def moralis_defi_balance(account_id, product_id, product):
         c = conn.cursor()
         row = c.execute(sql, (account_id, product_id)).fetchone()
 
-    chain = moralis_chain_convertion[row.chain]
+    chain = moralis_chain[row.chain]
     response = call_moralis_api(
         endpoint="defi", wallet_address=row.address, chain=chain
     )

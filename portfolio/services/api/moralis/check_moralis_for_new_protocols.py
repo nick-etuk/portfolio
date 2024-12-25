@@ -8,7 +8,7 @@ from portfolio.services.api.moralis.call_api import (
     call_moralis_api,
     save_response,
 )
-from portfolio.services.api.moralis.moralis_config import moralis_chain_convertion
+from portfolio.services.api.moralis.moralis_config import moralis_chain
 from portfolio.services.api.moralis.defi_balances import extract_balances
 from icecream import ic
 
@@ -54,7 +54,7 @@ def check_moralis_for_new_protocols():
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        chain = moralis_chain_convertion[row.chain]
+        chain = moralis_chain[row.chain]
         # log(f"{row.account} {row.product} on {chain}")
 
         response = call_moralis_api("defi", row.address, chain)

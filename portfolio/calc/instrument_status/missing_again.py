@@ -1,9 +1,12 @@
 import inspect
-from portfolio.calc.instrument_status.sql import base_select, exec_sql
+from portfolio.calc.instrument_status.sql import (
+    base_select,
+    insert_status_rows,
+)
 from icecream import ic
 
 
-def frequently_missing(run_id: int):
+def missing_again(run_mode: str, run_id: int):
     print(f"{__name__}.{inspect.stack()[0][3]}")
 
     """
@@ -19,11 +22,13 @@ def frequently_missing(run_id: int):
     """
     status_filter = "='PENDING_CLOSE'"
     new_status_value = "'PENDING_CLOSE'"
-    absence_clause = "inst.absence_count + 1"
+    absence_column = "inst.absence_count + 1"
     select_sql = base_select(
         status_filter=status_filter,
-        absence_clause=absence_clause,
+        absence_column=absence_column,
         new_status_value=new_status_value,
         run_id=run_id,
     )
-    exec_sql(select_sql)
+    insert_status_rows(
+        sql=select_sql, run_mode=run_mode, run_id=run_id, status="PENDING_CLOSE"
+    )

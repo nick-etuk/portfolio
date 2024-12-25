@@ -33,11 +33,11 @@ def report_instrument_status_changes(run_id: int):
         c = conn.cursor()
         rows = c.execute(sql, (run_id,)).fetchall()
 
-    if rows:
-        simple = tabulate(
-            rows,
-            tablefmt="simple",
-            headers=["account", "instrument", "value", "status", "absence_count"],
-        )
-        print(simple)
-        return rows
+    # if rows:
+    #     simple = tabulate(
+    #         rows,
+    #         tablefmt="simple",
+    #         headers=["account", "instrument", "value", "status", "absence_count"],
+    #     )
+    #     # print(simple)
+    return rows

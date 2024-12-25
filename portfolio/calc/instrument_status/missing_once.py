@@ -1,9 +1,9 @@
 import inspect
-from portfolio.calc.instrument_status.sql import base_select, exec_sql
+from portfolio.calc.instrument_status.sql import base_select, insert_status_rows
 from icecream import ic
 
 
-def first_time_missing(run_id: int):
+def missing_once(run_mode: str, run_id: int):
     print(f"{__name__}.{inspect.stack()[0][3]}")
     """
     For each account,
@@ -17,11 +17,13 @@ def first_time_missing(run_id: int):
     """
     status_filter = "in ('OPEN', 'CLOSED')"
     new_status_value = "'PENDING_CLOSE'"
-    absence_clause = "1"
-    select_sql = base_select(
+    absence_column = "1"
+    sql = base_select(
         status_filter=status_filter,
-        absence_clause=absence_clause,
+        absence_column=absence_column,
         new_status_value=new_status_value,
         run_id=run_id,
     )
-    exec_sql(select_sql)
+    insert_status_rows(
+        sql=sql, run_mode=run_mode, run_id=run_id, status="PENDING_CLOSE"
+    )
