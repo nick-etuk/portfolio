@@ -13,7 +13,8 @@ from portfolio.utils.lib import get_last_run_id
 
 def create_html_report(
     changes,
-    totals,
+    totals_table,
+    wallet_totals,
     targets,
     bitquery_balances,
     instrument_status_changes,
@@ -34,11 +35,11 @@ def create_html_report(
         <br>
         {risk_violations}
         <br>
-        <h2>Bitquery Balances</h2>
-        {bitquery_balances}
-        <br>
         <h2>Totals</h2>
         {totals_table}
+        <br>
+        <h2>Wallets</h2>
+        {wallet_table}
         <br>
         <h2>Status Changes</h2>
         {instrument_status_changes}
@@ -71,20 +72,59 @@ def create_html_report(
     # changes_html = grey_out_pending(changes_html)
 
     totals_html = tabulate(
-        totals,
+        totals_table,
         tablefmt="html",
         headers=[
             "Account",
-            "Instrument",
+            "Prouct",
             "Amount",
             "Risk",
             "Chain",
+            "Last updated",
             "Change",
             "Week",
             "Month",
             "Overall",
         ],
     )
+    wallet_headers = [
+        "Account",
+        "Product",
+        "Chain",
+        "Amount",
+        "Change",
+        "Week",
+        "Month",
+        "Overall",
+    ]
+    wallet_table = []
+
+    # "account": row.account,
+    # "product": row.product,
+    # "chain": row.chain,
+    # "amount": row.amount,
+    # "change": changes.last_run,
+    # "weekly": changes.weekly,
+    # "monthly": changes.monthly,
+    # "all_time": changes.all_time,
+
+    # for wallet_row in wallet_totals:
+    #     wallet_table.append(
+    #         [
+    #             wallet_row["account"],
+    #             wallet_row["product"],
+    #             round(wallet_row["amount"]),
+    #             # wallet_row["change"],
+    #         ]
+    #     )
+
+    # wallet_html = tabulate(wallet_table, tablefmt="html", headers=wallet_headers)
+    wallet_table_formatted = tabulate(
+        # wallet_totals, tablefmt="html", headers=wallet_headers
+        wallet_totals,
+        tablefmt="html",
+    )
+
     targets_html = tabulate(
         targets,
         tablefmt="html",
@@ -113,6 +153,7 @@ def create_html_report(
     html = html.replace("{risk_violations}", risk_violations)
     html = html.replace("{bitquery_balances}", bitquery_html)
     html = html.replace("{totals_table}", totals_html)
+    html = html.replace("{wallet_table}", wallet_table_formatted)
     html = html.replace("{targets_table}", targets_html)
     html = html.replace("{log_messages}", log_messages)
     html = html.replace("{instrument_status_changes}", instrument_status_changes_html)
@@ -138,7 +179,7 @@ if __name__ == "__main__":
     cash_balances = get_bitquery_balances()
     html_file = create_html_report(
         changes=changes_table,
-        totals=totals_table,
+        totals_table=totals_table,
         targets=targets_table,
         bitquery_balances=cash_balances,
     )

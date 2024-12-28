@@ -1,4 +1,5 @@
 import sqlite3 as sl
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from tabulate import tabulate
@@ -23,7 +24,8 @@ def base_select(
     {new_status_value} as instrument_status,
     current_timestamp as effdt,
     {absence_column} as absence_count,
-    {run_id} as run_id,
+    {run_id} as run_id, 
+    act.amount, act.units, act.price,
     ac.descr as account, prod.descr as product
     from actual_total act
     inner join product prod
@@ -73,7 +75,7 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
             info(f"{row.account} {row.product} is {status}")
             absence_count = 0
 
-        if run_mode == "dry_run":
+        if run_mode in ["dry_run", "report"]:
             continue
 
         with sl.connect(db) as conn:
@@ -94,3 +96,15 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
                 ),
             )
             conn.commit()
+
+        if status == "CLOSED":
+            insert_actual_total(
+                run_id=run_id,
+                timestamp=row.effdt,
+                account_id=row.account_id,
+                product_id=row.product_id,
+                amount=row.amount,
+                units=row.units,
+                price=row.price,
+                status="I",
+            )

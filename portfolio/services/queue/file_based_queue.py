@@ -21,7 +21,7 @@ def queue_html_accounts(run_id: int, run_mode: str, reload_account: int = None):
         """
     args = ()
 
-    if run_mode == "reload":
+    if run_mode in ["reload", "dry_run"]:
         # reload accounts regardless of status
         sql = """
         select q.queue_id, ac.account_id, ac.descr as account, ac.address, q.status

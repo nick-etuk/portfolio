@@ -1,8 +1,10 @@
 import re
 import sqlite3 as sl
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.services.api.moralis.wallet_chains import get_wallet_chains
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
+from portfolio.utils.next_seq import get_next_seq
 from portfolio.services.api.moralis.moralis_config import (
     moralis_wallet_chains,
     spam_indicators,
@@ -44,58 +46,18 @@ def insert_product(symbol_name, chain):
 
 
 def insert_transaction(run_id, timestamp, account_id, symbol: dict):
-    seq_sql = """
-    select max(seq) as max_seq
-    from actual_total
-    """
     symbol_name = symbol["symbol"]
     value = symbol["value"]
 
-    max_seq = 0
-    with sl.connect(db) as conn:
-        conn.row_factory = named_tuple_factory
-        c = conn.cursor()
-        row = c.execute(seq_sql).fetchone()
-
-    if row:
-        # ic(row)
-        max_seq = row.max_seq
-
-    # ic(max_seq)
-    max_seq += 1
-
-    insert_sql = """
-    insert into actual_total (
-        seq, run_id, account_id, product_id, amount, units, price, status, timestamp) 
-    values (
-        ?,
-        ?,
-        ?, 
-        ?, 
-        ?, 
-        ?, 
-        ?, 
-        'A',
-        ?
+    insert_actual_total(
+        run_id=run_id,
+        timestamp=timestamp,
+        account_id=account_id,
+        product_id=symbol_name,
+        amount=round(value),
+        units=symbol["units"],
+        price=symbol["price"],
     )
-    """
-    with sl.connect(db) as conn:
-        conn.row_factory = named_tuple_factory
-        c = conn.cursor()
-        c.execute(
-            insert_sql,
-            (
-                max_seq,
-                run_id,
-                account_id,
-                symbol_name,
-                round(value),
-                symbol["units"],
-                symbol["price"],
-                timestamp,
-            ),
-        )
-        conn.commit()
 
 
 def save_balances(run_mode, run_id, timestamp, account_id, account, symbols: dict):
@@ -167,7 +129,6 @@ def moralis_wallet_token_values(run_mode, run_id, timestamp):
         symbols = {}
         # for chain in moralis_chain.values():
         # chains = get_wallet_chains()
-        # ic(chains)
         if account_row.account_id not in moralis_wallet_chains:
             continue
         for chain in moralis_wallet_chains[account_row.account_id]:

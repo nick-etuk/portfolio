@@ -76,7 +76,7 @@ def get_multiple_prices(symbols: str):
     return result
 
 
-def cmc_get_value(account_id, product_id, product):
+def cmc_get_value(run_mode, account_id, product_id, product):
     price = get_price(product_id)
 
     sql = """

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 cd "$REPO_PATH/portfolio" || exit
-.venv/bin/python main.py "$@"
+.venv/bin/python portfolio/main.py "$@"
 
 if [ $? != 0 ]; then
-    .venv/bin/python main.py retry
+    .venv/bin/python portfolio/main.py retry
 fi
-.venv/bin/python backup_db.py
+.venv/bin/python portfolio/backup_db.py

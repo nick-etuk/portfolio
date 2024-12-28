@@ -1,7 +1,11 @@
 import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.services.api.moralis.call_api import call_moralis_api, save_response
+from portfolio.services.api.moralis.call_api import (
+    call_moralis_api,
+    load_last_response,
+    save_response,
+)
 from portfolio.services.api.moralis.moralis_config import moralis_chain
 from portfolio.utils.init import init, log, info
 from icecream import ic
@@ -16,7 +20,7 @@ def extract_balances(response: object, account: str, chain: str):
         return balance_usd
 
 
-def moralis_defi_balance(account_id, product_id, product):
+def moralis_defi_balance(run_mode, account_id, product_id, product):
     sql = """
     select ac.address, ac.descr as account,
     p.chain,
@@ -45,11 +49,14 @@ def moralis_defi_balance(account_id, product_id, product):
         row = c.execute(sql, (account_id, product_id)).fetchone()
 
     chain = moralis_chain[row.chain]
-    response = call_moralis_api(
-        endpoint="defi", wallet_address=row.address, chain=chain
-    )
-    # response = load_last_response()
-    save_response(response, f"defi_{row.account}", row.chain)
+    if run_mode == "dry_run":
+        response = load_last_response(account=row.account, chain=chain)
+    else:
+        response = call_moralis_api(
+            endpoint="defi", wallet_address=row.address, chain=chain
+        )
+        save_response(response, f"defi_{row.account}", row.chain)
+
     amount = extract_balances(response, row.account, row.chain)
     return {"price": 0, "units": 0, "value": amount}
 

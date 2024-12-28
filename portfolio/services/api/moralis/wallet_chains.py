@@ -41,5 +41,4 @@ def get_wallet_chains():
             continue
         chains[row.account_id].append(row.chain)
 
-    ic(chains)
     return chains

@@ -1,8 +1,6 @@
-import inspect
 from icecream import ic
 from portfolio.utils.init import init, log
 from portfolio.risks.ip_address_changed import ip_address_changed
-from portfolio.calc.totals import get_totals
 
 from portfolio.risks.product_too_high_risk import product_too_high_risk
 from portfolio.risks.high_risk_products import high_risk_products
@@ -12,7 +10,7 @@ from portfolio.risks.interest_rate_too_high import interest_rate_too_high
 
 
 def to_html(violations):
-    output = f"<h2 style='color:red'>Risks</h2>"
+    output = "<h2 style='color:red'>Risks</h2>"
     for violation in violations:
         output += f"<h2>{violation['descr']}</h2>"
         for instance in violation["instances"]:
@@ -21,11 +19,8 @@ def to_html(violations):
     return output
 
 
-def check_risks():
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
-    combined_total, solomon_total, personal_total, details, table = get_totals("total")
-    print("Combined total is", round(combined_total))
+def check_risks(combined_total):
+    # print(f"{__name__}.{inspect.stack()[0][3]}")
 
     rule_factory = [
         {
@@ -53,7 +48,7 @@ def check_risks():
         },
         {
             "rule_id": 5,
-            "descr": f"Very high interest rate. Could be risky.",
+            "descr": "Very high interest rate. Could be risky.",
             "function": interest_rate_too_high,
         },
         {

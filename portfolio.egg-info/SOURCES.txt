@@ -1,5 +1,6 @@
 README.md
 setup.py
+portfolio/main.py
 portfolio.egg-info/PKG-INFO
 portfolio.egg-info/SOURCES.txt
 portfolio.egg-info/dependency_links.txt

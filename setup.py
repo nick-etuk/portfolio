@@ -15,7 +15,8 @@ setup(
     license="",
     keywords="crypto portfolio",
     url="http://asterlan.com",
-    packages=find_packages(","),
+    # packages=find_packages(","),
+    packages=["portfolio"],
     long_description=read("README.md"),
     classifiers=[],
 )

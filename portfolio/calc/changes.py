@@ -1,3 +1,4 @@
+from datetime import datetime
 import inspect
 from portfolio.calc.apr import calc_apr
 from portfolio.calc.debts_by_product import net_amount
@@ -19,6 +20,41 @@ change_col = ""
 table = []
 
 
+def days_ago(new_timestamp: datetime, old_timestamp: datetime):
+    # new_timestamp = parse(new_date)
+    # old_timestamp = parse(old_date)
+    delta = new_timestamp - old_timestamp
+    seconds = delta.total_seconds()
+    days = seconds / 60 / 60 / 24
+
+    if days > 365:
+        years = days / 365
+        label = "year" if round(years) == 1 else "years"
+        number_str = "{:.1f}".format(years).strip("0").strip(".")
+        result = f"{number_str} {label}"
+        return result
+
+    if days > 30:
+        months = days / 30
+        label = "month" if round(months) == 1 else "months"
+        number_str = "{:.0f}".format(months).strip("0").strip(".")
+        result = f"{number_str} {label}"
+        return result
+
+    if days > 7:
+        weeks = days / 7
+        label = "week" if round(weeks) == 1 else "weeks"
+        number_str = "{:.0f}".format(weeks).strip("0").strip(".")
+        result = f"{number_str} {label}"
+        return result
+
+    label = "day" if round(days) == 1 else "days"
+    number_str = "{:.0f}".format(days).strip("0").strip(".")
+    result = f"{number_str} {label}"
+
+    return result
+
+
 def change_str(amount, timestamp, previous_amount, previous_timestamp):
     if not (previous_amount and previous_timestamp):
         return "New entry", 0
@@ -35,13 +71,16 @@ def change_str(amount, timestamp, previous_amount, previous_timestamp):
     change_str = ""
     if change != 0:
         change_str = "{:+.0f}".format(change)
-        days_str1 = "day" if round(days) == 1 else "days"
-        days_str2 = "{:.1f}".format(days).strip("0").strip(".")
-        days_str = days_str2 + " " + days_str1
+        # days_str1 = "day" if round(days) == 1 else "days"
+        # days_str2 = "{:.1f}".format(days).strip("0").strip(".")
+        # days_str = days_str2 + " " + days_str1
+        timespan = days_ago(current_timestamp, prev_timestamp)
         # days_str = f"{days:g} {days_str1}"
         if apr > 0.1:
             # change_str += "  " + "{:.0f}".format(apr) + "%  " + days_str
-            change_str = "{:.0f}".format(apr) + "%  " + days_str
+            change_str = "{:.0f}".format(apr) + "%  " + timespan
+        else:
+            change_str += "  " + timespan
 
     return change_str, apr
 

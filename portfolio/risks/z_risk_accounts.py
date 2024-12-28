@@ -1,11 +1,10 @@
 from portfolio.utils.lib import named_tuple_factory
 import sqlite3 as sl
 from portfolio.utils.config import db
-from dateutil.parser import parse
 from icecream import ic
 
 
-def get_products(account):
+def z_get_products(account):
     total = 0
     sql = """
     select act.product_id, p.descr as product, sum(act.amount) as amount
@@ -27,13 +26,13 @@ def get_products(account):
 
     results = []
     for product in rows:
-        results.append({product.product: {'amount': product.amount}})
+        results.append({product.product: {"amount": product.amount}})
         total += product.amount
 
     return total, results
 
 
-def get_assets(account):
+def z_get_assets(account):
     total = 0
     sql = """
     select lo.borrower_id, bo.descr as borrower, sum(lo.amount) as amount
@@ -51,13 +50,13 @@ def get_assets(account):
 
     results = []
     for loan in rows:
-        results.append({'Loan to '+loan.borrower: loan.amount})
+        results.append({"Loan to " + loan.borrower: loan.amount})
         total += loan.amount
 
     return total, results
 
 
-def get_debts(account):
+def z_get_debts(account):
     total = 0
     sql = """
     select lo.lender_id, lend.descr as lender, sum(lo.amount) as amount
@@ -75,13 +74,13 @@ def get_debts(account):
 
     results = []
     for loan in rows:
-        results.append({'Owed to '+loan.lender: loan.amount})
+        results.append({"Owed to " + loan.lender: loan.amount})
         total += loan.amount
 
     return total, results
 
 
-def accounts():
+def z_risk_accounts():
     solomon_total = 0
     personal_total = 0
     sql = """
@@ -91,15 +90,17 @@ def accounts():
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        rows = c.execute(sql,).fetchall()
+        rows = c.execute(
+            sql,
+        ).fetchall()
 
     result_dict = {}
     for account in rows:
         result_list = []
 
-        prod_total, products = get_products(account)
-        asset_total, assets = get_assets(account)
-        debt_total, debts = get_debts(account)
+        prod_total, products = z_get_products(account)
+        asset_total, assets = z_get_assets(account)
+        debt_total, debts = z_get_debts(account)
 
         if products:
             result_list.append(products)
@@ -109,10 +110,10 @@ def accounts():
             result_list.append(debts)
 
         total = prod_total + asset_total - debt_total
-        result_list.append({'Total': total})
+        result_list.append({"Total": total})
         result_dict[account.account] = result_list
 
-        if account.account.startswith('Solomon'):
+        if account.account.startswith("Solomon"):
             solomon_total += total
         else:
             personal_total += total
@@ -121,7 +122,7 @@ def accounts():
 
 
 if __name__ == "__main__":
-    solomon_total, personal_total, details = accounts()
+    solomon_total, personal_total, details = z_risk_accounts()
     ic(details)
     print(f"Solomon total: {solomon_total}")
     print(f"Personal total: {personal_total}")

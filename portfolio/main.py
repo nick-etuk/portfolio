@@ -4,8 +4,9 @@ import sys
 from icecream import ic
 from portfolio.calc.instrument_status.update_status import update_instrument_status
 from portfolio.calc.targets import targets
-from portfolio.calc.totals import show_totals
+from portfolio.calc.totals.show_totals import show_totals
 from portfolio.calc.changes import report_changes
+from portfolio.reports.wallet_totals import get_wallet_totals
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
 
@@ -22,7 +23,7 @@ from portfolio.services.html.parse_html import parse_html
 
 from portfolio.utils.init import error, info, init, log
 from portfolio.utils.config import webdriver
-from portfolio.utils.next_run_id import next_run_id
+from portfolio.utils.next_run_id import get_timestamp, next_run_id
 
 from portfolio.interactive.manual_balances.manual_balances import get_manual_balances
 from portfolio.utils.utils import show_usage
@@ -36,23 +37,28 @@ def fetch_html():
 
 
 def main():
-    get_manual_balances(run_id, timestamp)
-    fetch_api(run_id, timestamp)
-    fetch_html()
-    moralis_wallet_token_values(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
-    check_moralis_for_new_protocols()
+    if run_mode != "report":
+        get_manual_balances(run_id, timestamp)
+        fetch_api(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
+        fetch_html()
+        moralis_wallet_token_values(
+            run_mode=run_mode, run_id=run_id, timestamp=timestamp
+        )
+        check_moralis_for_new_protocols()
 
     instrument_status_changes = update_instrument_status(run_mode, run_id)
     changes = report_changes(run_id)
-    totals = show_totals("total")
+    totals = show_totals(run_id, timestamp, "total")
     # totals = show_totals("cash")
-    my_targets = targets()
+    wallet_totals = get_wallet_totals()
+    my_targets = targets(totals)
     # bitquery_balances = get_bitquery_balances(run_mode) todo: fix this
-    risk_violations = check_risks()
+    risk_violations = check_risks(totals.combined)
 
     html_file = create_html_report(
         changes=changes,
-        totals=totals,
+        totals_table=totals.totals_table,
+        wallet_totals=wallet_totals,
         targets=my_targets,
         # bitquery_balances=bitquery_balances,
         bitquery_balances="",
@@ -75,7 +81,7 @@ if __name__ == "__main__":
     if args_len == 1:
         run_mode = "normal"
     elif args_len > 1:
-        args_list = ["normal", "retry", "reload", "dry_run"]
+        args_list = ["normal", "retry", "reload", "dry_run", "report"]
         if sys.argv[1] not in args_list:
             error(f"Invalid argument: {sys.argv[1]}")
             show_usage()
@@ -84,8 +90,9 @@ if __name__ == "__main__":
         run_mode = sys.argv[1]
 
     run_id, timestamp = next_run_id(run_mode)
-    if args_len == 3:
+    if args_len >= 3:
         run_id = sys.argv[2]
+        timestamp = get_timestamp(run_id)
 
     reload_account = ""
     if args_len == 4:

@@ -1,5 +1,6 @@
 import sqlite3 as sl
 from portfolio.calc.changes import change_str
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db
 from portfolio.utils.lib import (
@@ -26,7 +27,6 @@ def get_manual_balance(account_id, run_id, timestamp):
     and act.status='A'
     and p.data_source in ('MANUAL')
     """
-
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
@@ -37,29 +37,14 @@ def get_manual_balance(account_id, run_id, timestamp):
         amount = input(f"{row.product} ({row.amount}):")
         if not amount:
             continue
-        insert_sql = """
-        insert into actual_total (product_id, account_id, run_id, timestamp, amount, units, price, status, dummy)
-        values(?,?,?,?,?,?,?,?,?)
-        """
-        with sl.connect(db) as conn:
-            conn.row_factory = named_tuple_factory
-            c = conn.cursor()
-            c.execute(
-                insert_sql,
-                (
-                    row.product_id,
-                    account_id,
-                    run_id,
-                    timestamp,
-                    amount,
-                    1,
-                    0,
-                    "A",
-                    "N",
-                ),
-            )
 
-        # seq, discard_me = get_last_seq()
+        insert_actual_total(
+            run_id=run_id,
+            timestamp=timestamp,
+            account_id=account_id,
+            product_id=row.product_id,
+            amount=amount,
+        )
 
         previous = previous_by_run_id(
             run_id=run_id,

@@ -2,6 +2,7 @@ from datetime import datetime
 import sqlite3 as sl
 import inspect
 from portfolio.calc.changes import change_str
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db
 from portfolio.utils.lib import (
@@ -18,7 +19,7 @@ from portfolio.services.api.coin_market_cap import cmc_get_value
 from icecream import ic
 
 
-def fetch_api(run_id, timestamp):
+def fetch_api(run_mode, run_id, timestamp):
     print(f"{__name__}.{inspect.stack()[0][3]}")
 
     if not timestamp:
@@ -58,34 +59,21 @@ def fetch_api(run_id, timestamp):
         info(f"{row.data_source} {row.account} {row.product}")
         try:
             result = api[row.data_source](
+                run_mode=run_mode,
                 account_id=row.account_id,
                 product_id=row.product_id,
                 product=row.product,
             )
             if result:
-                insert_sql = """
-                insert into actual_total (product_id, account_id, run_id, timestamp, amount, units, price, status, dummy)
-                values(?,?,?,?,?,?,?,?,?)
-                """
-                with sl.connect(db) as conn:
-                    conn.row_factory = named_tuple_factory
-                    c = conn.cursor()
-                    c.execute(
-                        insert_sql,
-                        (
-                            row.product_id,
-                            row.account_id,
-                            run_id,
-                            timestamp,
-                            round(result["value"]),
-                            result["units"],
-                            result["price"],
-                            "A",
-                            row.dummy,
-                        ),
-                    )
-
-                # seq, discard_me = get_last_seq()
+                insert_actual_total(
+                    run_id=run_id,
+                    timestamp=timestamp,
+                    account_id=row.account_id,
+                    product_id=row.product_id,
+                    amount=round(result["value"]),
+                    units=result["units"],
+                    price=result["price"],
+                ),
 
                 previous = previous_by_run_id(
                     run_id=run_id,

@@ -4,9 +4,10 @@ import re
 import sys
 from bs4 import BeautifulSoup
 from portfolio.calc.changes import change_str
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_seq import previous_by_seq
 from portfolio.utils.config import db
-from definitions import root_dir
+from portfolio.definitions import root_dir
 from portfolio.services.html.find_product import find_product
 from portfolio.utils.init import info, init, log
 import sqlite3 as sl
@@ -110,24 +111,13 @@ def parse_queue_row(
             account_id=account_id,
         )
         if amount:
-            sql = """
-            insert into actual_total (product_id, account_id, run_id, timestamp, amount, status)
-            values(?,?,?,?,?,?)
-            """
-            with sl.connect(db) as conn:
-                conn.row_factory = named_tuple_factory
-                c = conn.cursor()
-                c.execute(
-                    sql,
-                    (
-                        product_row.product_id,
-                        account_id,
-                        run_id,
-                        timestamp,
-                        round(amount),
-                        "A",
-                    ),
-                )
+            insert_actual_total(
+                run_id=run_id,
+                timestamp=timestamp,
+                account_id=account_id,
+                product_id=product_row.product_id,
+                amount=amount,
+            )
             seq, _ = get_last_seq()
 
             change = ""

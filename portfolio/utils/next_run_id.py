@@ -1,6 +1,6 @@
 import sqlite3 as sl
 from portfolio.utils.config import db
-from portfolio.utils.init import log
+from portfolio.utils.init import log, warn
 from portfolio.utils.lib import named_tuple_factory
 
 
@@ -22,3 +22,21 @@ def next_run_id(run_mode):
         run_id += 1
 
     return run_id, row.timestamp
+
+
+def get_timestamp(run_id):
+    sql = """
+    select min(timestamp) as timestamp 
+    from html_parse_queue
+    where run_id=?
+    """
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        row = c.execute(sql, (run_id,)).fetchone()
+
+    if not row:
+        warn(f"No timestamp found for {run_id}")
+        return None
+
+    return row.timestamp

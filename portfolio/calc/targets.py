@@ -1,18 +1,12 @@
 from datetime import datetime
-import inspect
-from webbrowser import get
 
-import numpy as np
+from portfolio.calc.totals.total_class import TotalClass
 from portfolio.utils.lib import named_tuple_factory
 import sqlite3 as sl
 from portfolio.utils.config import db
-from portfolio.utils.init import log
 from dateutil.parser import parse
 from icecream import ic
-from tabulate import tabulate
 from portfolio.utils.init import init, log
-from portfolio.calc.totals import get_totals
-import pandas as pd
 
 table = []
 
@@ -65,7 +59,7 @@ def get_targets(account_id):
     return total_principal, total_accrued
 
 
-def get_target_accounts():
+def get_target_accounts(totals: TotalClass):
     sql = """
     select distinct f.account_id , ac.descr as account
     from funding f
@@ -79,20 +73,13 @@ def get_target_accounts():
 
     for row in rows:
         principal, accrued = get_targets(row.account_id)
-        (
-            current_value,
-            solomon_total,
-            personal_total,
-            details,
-            totals_table,
-        ) = get_totals("total", row.account_id)
         table.append(
             [
                 row.account,
                 principal,
                 round(accrued),
-                round(current_value),
-                round(accrued - current_value),
+                round(totals.combined),
+                round(accrued - totals.combined),
             ]
         )
         # print(f"{row.account} -  \t\t\t Invested:{principal}, \t\t expected: {round(accrued)} current: {round(current_value)}, shortfall: {round(accrued-current_value)}")
@@ -100,15 +87,14 @@ def get_target_accounts():
     return table
 
 
-def targets():
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-    result = get_target_accounts()
+def targets(totals: TotalClass):
+    # print(f"{__name__}.{inspect.stack()[0][3]}")
+    result = get_target_accounts(totals)
     # r2 = np.sort(result, axis=0)
     return result
 
 
 if __name__ == "__main__":
-    # solomon_total, personal_total, details = get_totals("total")
     # log(tabulate(details, headers="firstrow"))
     init()
     result = targets()
