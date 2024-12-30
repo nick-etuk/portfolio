@@ -7,8 +7,6 @@ from icecream import ic
 
 
 def closed(run_mode: str, run_id: int):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
     """
     For each account/product combination
     that is not in the actual_total table for the last run

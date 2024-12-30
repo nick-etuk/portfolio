@@ -1,3 +1,4 @@
+import platform
 import subprocess
 import sys
 
@@ -5,7 +6,7 @@ from icecream import ic
 from portfolio.calc.instrument_status.update_status import update_instrument_status
 from portfolio.calc.targets import targets
 from portfolio.calc.totals.show_totals import show_totals
-from portfolio.calc.changes import report_changes
+from portfolio.calc.changes.report_changes import report_changes
 from portfolio.reports.wallet_totals import get_wallet_totals
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
@@ -66,7 +67,10 @@ def main():
         risk_violations=risk_violations,
     )
 
-    subprocess.Popen([r"open", html_file])
+    if platform.system() == "Windows":
+        subprocess.Popen([r"pwsh.exe", "-c", html_file], shell=True)
+    else:
+        subprocess.Popen([r"open", html_file])
 
     # if status == "ERROR":        sys.exit(1)
 

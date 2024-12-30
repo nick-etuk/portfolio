@@ -1,6 +1,6 @@
 import sqlite3 as sl
-from portfolio.calc.changes import change_str
-from portfolio.calc.debts_by_product import net_amount
+from portfolio.calc.changes.change_str import change_str
+# from portfolio.calc.debts_by_product import net_amount
 from portfolio.utils.config import db
 from portfolio.utils.dict_to_object import AttrDict
 from portfolio.utils.lib import named_tuple_factory

@@ -5,8 +5,6 @@ from portfolio.utils.init import info
 
 
 def open(run_mode: str, run_id: int):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
     sql = """
     select act.account_id, act.product_id, act.timestamp as effdt,
     ac.descr as account, prod.descr as product

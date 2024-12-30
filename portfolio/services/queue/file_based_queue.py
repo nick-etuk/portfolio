@@ -12,8 +12,6 @@ from portfolio.utils.config import db, cypress_data_dir
 
 
 def queue_html_accounts(run_id: int, run_mode: str, reload_account: int = None):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
     sql = """
         select ac.account_id, ac.descr as account, ac.address 
         from account ac
@@ -65,16 +63,19 @@ def queue_html_accounts(run_id: int, run_mode: str, reload_account: int = None):
         args = (run_id,)
 
     accounts_array = []
-    # ic(run_mode, run_id, reload_account)
-    # print(sql)
+    
+    cypress_queue_dir = os.path.join(cypress_data_dir, "queue")
+    if not os.path.exists(cypress_queue_dir):
+        os.makedirs(cypress_queue_dir)
+    cypress_queue_file = os.path.join(
+        cypress_queue_dir, f"cypressQueue-{run_id}.json"
+    )
+    
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
         rows = c.execute(sql, args).fetchall()
 
-    cypress_queue_file = os.path.join(
-        cypress_data_dir, "queue", f"cypressQueue-{run_id}.json"
-    )
     for row in rows:
         if run_mode != "normal":
             queue_id = row.queue_id

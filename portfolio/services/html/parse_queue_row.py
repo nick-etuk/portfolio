@@ -3,7 +3,7 @@ import os
 import re
 import sys
 from bs4 import BeautifulSoup
-from portfolio.calc.changes import change_str
+from portfolio.calc.changes.change_str import change_str
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_seq import previous_by_seq
 from portfolio.utils.config import db

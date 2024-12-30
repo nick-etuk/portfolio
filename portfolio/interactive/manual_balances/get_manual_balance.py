@@ -1,5 +1,5 @@
 import sqlite3 as sl
-from portfolio.calc.changes import change_str
+from portfolio.calc.changes.change_str import change_str
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db

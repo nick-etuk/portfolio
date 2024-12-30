@@ -1,7 +1,7 @@
 from datetime import datetime
 import sqlite3 as sl
 import inspect
-from portfolio.calc.changes import change_str
+from portfolio.calc.changes.change_str import change_str
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
 from portfolio.utils.config import db
@@ -20,8 +20,6 @@ from icecream import ic
 
 
 def fetch_api(run_mode, run_id, timestamp):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
     if not timestamp:
         log("Fetch API: No timestamp, using current date and time")
         timestamp = datetime.now().isoformat()

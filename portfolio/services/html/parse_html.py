@@ -10,7 +10,6 @@ from portfolio.services.html.parse_queue_row import parse_queue_row
 
 
 def parse_html(run_mode: str, run_id: int = 0, reload_account: int = None):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
     sql = """
         select q.queue_id, q.run_id, q.timestamp, q.account_id, ac.descr as account, q.filename 
         from html_parse_queue q, account ac

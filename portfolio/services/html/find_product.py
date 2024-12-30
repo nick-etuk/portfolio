@@ -1,5 +1,7 @@
+from datetime import datetime
 import re
 from icecream import ic
+from portfolio.calc.changes.days_ago import days_ago
 from portfolio.utils.init import info, log, warn
 from portfolio.utils.utils import first_number
 from portfolio.utils.config import db
@@ -291,7 +293,7 @@ def find_product(html, row, account_id):
             # info(f"{amount_row.account} {amount_row.address}")
             # product_amount_str = input(f"{row.product} ({amount_row.old_amount}):")
             warn(
-                f"{row.product} not found in HTML. Last value {amount_row.old_amount} on {amount_row.timestamp}. {amount_row.account} {amount_row.address}"
+                f"{row.product} not found in HTML. Last seen {days_ago(datetime.now(), amount_row.timestamp)} ago - {amount_row.old_amount} {amount_row.account} {amount_row.address}"
             )
 
     return float(product_amount_str) if product_amount_str else 0

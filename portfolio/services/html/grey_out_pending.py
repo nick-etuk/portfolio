@@ -6,7 +6,6 @@ def grey_out_pending(rows):
     TODO: implement this function
     Manually build html table using this as a template:
     """
-    print(f"{__name__}.{inspect.stack()[0][3]}")
 
     top = """
     <table>

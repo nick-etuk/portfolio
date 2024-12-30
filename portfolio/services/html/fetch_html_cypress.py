@@ -1,18 +1,32 @@
 import json
 import os
+import platform
 import subprocess
+from pathlib import Path
+
 import sqlite3 as sl
+import sys
 from icecream import ic
+from portfolio.utils.init import init
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.utils.config import db, cypress_data_dir
+
+from portfolio.utils.config import db, cypress_path, cypress_data_dir
+from portfolio.definitions import root_dir
 
 
 def fetch_html_cypress(run_id, run_mode):
     if run_mode == "normal":
         print("Fetching html with cypress...")
+        if platform.system() == "Windows":
+            args = [
+                "pwsh.exe",
+                r"C:\app\nvm\v18.20.4\npx.ps1"
+            ]
+        else:
+            args = ["npx"]
+
         subprocess.call(
-            [
-                "npx",
+            args + [
                 "cypress",
                 "run",
                 "--browser",
@@ -20,9 +34,19 @@ def fetch_html_cypress(run_id, run_mode):
                 "--env",
                 f"runId={run_id}",
             ],
-            # ["npx", "cypress", "run", "--env", f"runId={run_id}"],
-            cwd="/Users/macbook-work/Documents/repos/portfolio/cypress",
+            cwd=cypress_path,
         )
+
+        # subprocess.call(
+        #     [
+        #         r"pwsh.exe"
+        #         r"C:\app\nvm\v18.20.4\npx.ps1",
+        #         "cypress",
+        #         "run",
+        #     ],
+        #     # cwd="/Users/macbook-work/Documents/repos/portfolio/cypress",
+        #     cwd=cypress_path,
+        # )
 
     status_summary = "DONE"
     status_file = os.path.join(
@@ -76,3 +100,7 @@ def fetch_html_cypress(run_id, run_mode):
                 ),
             )
     return status_summary
+
+if __name__ == "__main__":
+    init()
+    fetch_html_cypress(420, "normal")

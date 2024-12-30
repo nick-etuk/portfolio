@@ -1,4 +1,4 @@
-from portfolio.calc.change_over_time import get_change_overtime
+from portfolio.calc.changes.change_over_time import get_change_overtime
 from portfolio.utils.lib import named_tuple_factory
 import sqlite3 as sl
 from portfolio.utils.config import db
@@ -37,7 +37,7 @@ def get_wallet_totals():
             account_id=row.account_id,
             product_id=row.product_id,
             amount=row.amount,
-            timestamp=row.timestamp,
+            timestamp_str=row.timestamp,
         )
         results.append(
             {

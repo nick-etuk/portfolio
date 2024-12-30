@@ -4,7 +4,6 @@ from icecream import ic
 
 
 def missing_once(run_mode: str, run_id: int):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
     """
     For each account,
     select all products that it has ever had (first effective date)

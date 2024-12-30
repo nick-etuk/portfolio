@@ -26,7 +26,7 @@ def insert_actual_total(
                 product_id,
                 run_id,
                 timestamp,
-                round(amount),
+                round(float(amount)),
                 units,
                 price,
                 status,

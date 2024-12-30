@@ -1,5 +1,4 @@
 import sqlite3 as sl
-from tabulate import tabulate
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from icecream import ic

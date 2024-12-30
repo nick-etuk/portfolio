@@ -15,7 +15,7 @@ def get_bitquery_balances(run_mode):
     Get cash balances from Bitquery API
     Is this really just cash balances, or is it all balances for each account?
     """
-    print(f"{__name__}.{inspect.stack()[0][3]}")
+    # print(f"{__name__}.{inspect.stack()[0][3]}")
     result = []
     if run_mode != "normal":
         return result

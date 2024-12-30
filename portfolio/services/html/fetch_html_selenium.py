@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from portfolio.calc.changes import change_str
+from portfolio.calc.changes.change_str import change_str
 
 from portfolio.utils.config import db, output_dir, html_url
 from portfolio.utils.lib import named_tuple_factory

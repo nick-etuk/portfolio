@@ -3,7 +3,7 @@ from portfolio.calc.instrument_status.open import open
 from portfolio.calc.instrument_status.missing_once import missing_once
 from portfolio.calc.instrument_status.missing_again import missing_again
 from portfolio.calc.instrument_status.closed import closed
-from portfolio.calc.instrument_status.report_changes import (
+from portfolio.calc.instrument_status.report_status_changes import (
     report_instrument_status_changes,
 )
 from portfolio.utils.lib import get_last_run_id

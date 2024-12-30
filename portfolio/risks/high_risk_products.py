@@ -9,8 +9,6 @@ def high_risk_products(combined_total: float):
     """
     No more 850 in one high risk product.
     """
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-
     sql = """
     select p.product_id, p.descr as product, sum(act.amount) as amount
     from actual_total act

@@ -1,8 +1,8 @@
 from datetime import datetime
 from dateutil.parser import parse
 import sqlite3 as sl
-from portfolio.calc.change_over_time import get_change_overtime
-from portfolio.calc.changes import days_ago
+from portfolio.calc.changes.change_over_time import get_change_overtime
+from portfolio.calc.changes.days_ago import days_ago
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 
@@ -31,6 +31,8 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
     -- and act.run_id = ?
     and act.status='A'
     and p.subtotal='N'
+    and p.product_id <> '3'
+    and p.data_source <> 'MORALIS_TOKEN_API'
     and act.dummy = 'N'
     {cash_filter}
     """
@@ -53,8 +55,14 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
             account_id=account_id,
             product_id=product.product_id,
             amount=amount,
-            timestamp=timestamp,
+            timestamp_str=timestamp,
         )
+
+        prev_timestamp = parse(product.timestamp)
+        if (datetime.now() - prev_timestamp).days > 2:
+            last_updated_str = days_ago(datetime.now(), prev_timestamp)
+        else:
+            last_updated_str = ""
 
         result_dict.append(
             {
@@ -62,7 +70,7 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
                     "amount": round(amount),
                     "risk": product.risk_level_descr,
                     "chain": product.chain,
-                    "last_updated": product.timestamp,
+                    "last_updated": last_updated_str,
                     "change": changes.last_run,
                     "week": changes.weekly,
                     "month": changes.monthly,
@@ -77,7 +85,7 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
                 round(amount),
                 product.risk_level_descr,
                 product.chain,
-                days_ago(datetime.now(), parse(product.timestamp)),
+                last_updated_str,
                 changes.last_run,
                 changes.weekly,
                 changes.monthly,

@@ -89,12 +89,13 @@ def current_values(run_id):
 
         # ic(current_timestamp, previous_timestamp, days, seconds)
         apr = change/old_value/365*days/100
-        change_str = "{:+.0f}".format(change)
-        if apr > 0.1:
-            change_str += " (" + "{:.1f}".format(apr) + "%)"
+        change_str = ""
         if change != 0:
             log(
                 f"{current.account} {current.product} {change_str}")
+            change_str = "{:+.0f}".format(change)
+        if apr > 0.1:
+            change_str += " (" + "{:.1f}".format(apr) + "%)"
 
 
 if __name__ == "__main__":

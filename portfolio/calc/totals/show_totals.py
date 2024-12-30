@@ -16,8 +16,8 @@ def show_totals(run_id, timestamp, totals_mode):
 
 if __name__ == "__main__":
     init()
-    run_id = 415
-    # run_id = get_last_run_id()
+    # run_id = 415
+    run_id, _ = get_last_run_id()
     result = show_totals(
         run_id=run_id, timestamp=get_timestamp(run_id), totals_mode="total"
     )

@@ -4,7 +4,7 @@ import subprocess
 from tabulate import tabulate
 from portfolio.calc import targets
 from portfolio.calc.bitquery_balances import get_bitquery_balances
-from portfolio.calc.changes import report_changes
+from portfolio.calc.changes.report_changes import report_changes
 from portfolio.calc.totals import show_totals
 from portfolio.utils.config import output_dir
 from portfolio.utils.init import current_logfile, init
@@ -56,7 +56,7 @@ def create_html_report(
     html_template = simple_html
 
     changes_table = []
-    headers = ["Account", "Product", "Value", "Change"]
+    headers = ["Account", "Product", "Value", "Change", "Last updated"]
 
     for change_row in changes:
         changes_table.append(
@@ -64,7 +64,8 @@ def create_html_report(
                 change_row["account"],
                 change_row["product"],
                 round(change_row["amount"]),
-                change_row["change"],
+                change_row['change'],
+                change_row['timespan'],
             ]
         )
 
