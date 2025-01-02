@@ -54,7 +54,7 @@ def fetch_api(run_mode, run_id, timestamp):
         rows = c.execute(sql).fetchall()
 
     for row in rows:
-        info(f"{row.data_source} {row.account} {row.product}")
+        info(f"{row.data_source}: {row.account} {row.product}")
         try:
             result = api[row.data_source](
                 run_mode=run_mode,

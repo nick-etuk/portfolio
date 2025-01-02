@@ -76,7 +76,7 @@ def save_balances(run_mode, run_id, timestamp, account_id, account, symbols: dic
             continue
         value = round(value)
         info(
-            f"Moralis token API: {account} \t {symbol_name} {symbol['chain']} \t {value}"
+            f"Moralis API token: {account} \t {symbol_name} {symbol['chain']} \t {value}"
         )
         if run_mode == "dry_run":
             continue

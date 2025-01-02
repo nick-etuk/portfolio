@@ -21,6 +21,11 @@ def find_product(html, row, account_id):
     row = product_id, p.descr as product, p.chain,
     p.project, p.html_label, p.html_table_columns,
     """
+    # if row.product not in ["Tetu USDC"]:
+    #     return 0
+    # ic(row)
+
+    amount_class = "ProjectCell_assetsItemWorth"
 
     def subtotal(product, chain, project, html_label):
         div = html.find("div", class_=re.compile("HeaderInfo_totalAsset.*"))
@@ -35,13 +40,39 @@ def find_product(html, row, account_id):
         result = ""
         div = html.find("div", title="Wallet")
         if div:
-            # amount_class = "ProjectCell_assetsItemWorth"
             # d2 = div.select(f"div[class^={amount_class}]")
             next_div = div.find_next_sibling(
                 "div", class_=re.compile("ProjectCell_assetsItemWorth.*")
             )
             if next_div:
                 result = next_div.text
+        return result
+
+    def beefy_v1(protocol_label):
+        # non-standard selector
+        div = html.find("img", src=re.compile(protocol_label, re.IGNORECASE))
+        if not div:
+            return ""
+        next_div = div.find_next("div", class_=re.compile(f"{amount_class}.*"))
+        if next_div:
+            result = next_div.text
+        return result
+
+    def beefy_v2(protocol_label, pool):
+        print("=>beefy_v2")
+        ic(protocol_label, pool)
+        # non-standard selector
+        div = html.find("div", id=re.compile(protocol_label, re.IGNORECASE))
+        ic(div)
+        if not div:
+            return ""
+        d2 = div.find_next("div", text=pool)
+        if not d2:
+            return ""
+        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        if not d3:
+            return ""
+        result = d3.text
         return result
 
     def beefy_separate_pool_links(protocol_label, pool):
@@ -52,6 +83,7 @@ def find_product(html, row, account_id):
         if not child:
             return ""
         parent = child.find_parent("div")
+        # ic(parent)
         if not parent:
             return ""
         pool_components = pool.split("+")
@@ -96,12 +128,11 @@ def find_product(html, row, account_id):
         amount = first_number(result.replace("$", "").replace(",", ""))
         return "" if float(amount) > 1500 else result
 
-    def aave(product, chain, project, html_label):
-        aave_coin = product.split()[-1]
+    def aave(coin):
         div = html.find("div", id="avax_aave3")
         if not div:
             return ""
-        d2 = div.find_next("div", text=aave_coin)
+        d2 = div.find_next("div", text=coin)
         if not d2:
             return ""
         d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
@@ -110,13 +141,14 @@ def find_product(html, row, account_id):
         result = d3.text
         return result
 
+    def aave_usdt(product, chain, project, html_label):
+        return aave("USDt")
 
-    def spooky(product, chain, project, html_label):
-        spooky_pool = {
-            "SpookySwap USDC + DAI": "USDC + DAI"
-        }
+    def aave_usdc(product, chain, project, html_label):
+        return aave("USDC")
 
-        pool = spooky_pool[product]
+    def spooky(pool):
+        # non-standard selector
         div = html.find("div", id="ftm_spookyswap")
         if not div:
             return ""
@@ -128,6 +160,36 @@ def find_product(html, row, account_id):
             return ""
         result = d3.text
         return result
+
+    def spooky_usdc_dai(product, chain, project, html_label):
+        return spooky("USDC + DAI")
+
+    def liquidity_pool_4_col(product, chain, project, html_label):
+        return select_liquidity_pool(
+            html_table_columns=4,
+            product=product,
+            chain=chain,
+            project=project,
+            html_label=html_label,
+        )
+
+    def liquidity_pool_5_col(product, chain, project, html_label):
+        return select_liquidity_pool(
+            html_table_columns=5,
+            product=product,
+            chain=chain,
+            project=project,
+            html_label=html_label,
+        )
+
+    def liquidity_pool_3_col(product, chain, project, html_label):
+        return select_liquidity_pool(
+            html_table_columns=3,
+            product=product,
+            chain=chain,
+            project=project,
+            html_label=html_label,
+        )
 
     def quickswap_usdc_dai(product, chain, project, html_label):
         # return quickswap("USDC + DAI")
@@ -153,8 +215,8 @@ def find_product(html, row, account_id):
         return result
 
     prod_search = {
-        "Aave Avlanche USDC": aave,
-        "Aave Avlanche USDT": aave,
+        "Aave Avlanche USDC": aave_usdc,
+        "Aave Avlanche USDT": aave_usdt,
         "Beefy Babyswap USDT BUSD": beefy_baby_usdt,
         "Beefy Apeswap USDT BUSD": beefy_ape_usdt,
         "Beefy Spiritswap DAI USDC": beefy_fantom,
@@ -166,7 +228,7 @@ def find_product(html, row, account_id):
         "HTML total": subtotal,
         # "Penrose DAI": liquidity_pool_5_col,
         "QuickSwap USDC + DAI": quickswap_usdc_dai,
-        "SpookySwap USDC + DAI": spooky,
+        "SpookySwap USDC + DAI": spooky_usdc_dai,
         # "Stargate USDT": liquidity_pool_4_col,
         # "Tetu USDC": asset_summary,
         "HTML Wallet Total": wallet,

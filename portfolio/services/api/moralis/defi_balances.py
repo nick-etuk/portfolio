@@ -16,7 +16,7 @@ def extract_balances(response: object, account: str, chain: str):
         instrument = protocol["protocol_name"]
         position = protocol["position"]
         balance_usd = position["balance_usd"]
-        info(f"{account} \t {chain} \t {instrument} \t\t\t {balance_usd}")
+        info(f"MORALIS API Defi: {account} \t {chain} \t {instrument} \t\t\t {balance_usd}")
         return balance_usd
 
 

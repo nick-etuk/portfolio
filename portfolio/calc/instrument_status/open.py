@@ -1,5 +1,5 @@
 import inspect
-from portfolio.calc.instrument_status.sql import insert_status_rows
+from portfolio.calc.instrument_status.status_sql import insert_status_rows
 from icecream import ic
 from portfolio.utils.init import info
 

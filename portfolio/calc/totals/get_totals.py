@@ -43,7 +43,7 @@ def get_totals(run_id, timestamp, totals_mode, account_id=0):
             totals_mode=totals_mode,
         )
         # ic(account, account_total, products, prod_rows)
-        info(f"{account.account} total: {account_total}")
+        info(f"Totals: {account.account} {account_total}")
         if products:
             # result_list.append(products)
             for item in products:

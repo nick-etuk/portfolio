@@ -1,5 +1,5 @@
 import inspect
-from portfolio.calc.instrument_status.sql import base_select, insert_status_rows
+from portfolio.calc.instrument_status.status_sql import base_select, insert_status_rows
 from icecream import ic
 
 from portfolio.utils.lib import get_last_run_id
@@ -13,7 +13,7 @@ def missing(run_mode: str, run_id: int):
     for the last run
     """
     sql = """
-    select inst.account_id, inst.product_id, inst.effdt,
+    select inst.account_id, inst.product_id, current_timestamp as effdt,
     'PENDING_CLOSE' as status, absence_count,
     ac.descr as account, p.descr as product
     from instrument_status inst

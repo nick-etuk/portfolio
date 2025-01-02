@@ -2,7 +2,7 @@ import inspect
 import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.calc.instrument_status.sql import insert_status_sql
+from portfolio.calc.instrument_status.status_sql import insert_status_sql
 from icecream import ic
 
 
