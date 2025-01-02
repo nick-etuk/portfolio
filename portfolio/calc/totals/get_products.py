@@ -45,20 +45,20 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
     result_dict = []
     result_table = []
 
-    for product in rows:
-        amount = product.amount
+    for row in rows:
+        amount = row.amount
         # if product.product_id in debts:
         #     amount -= debts[product.product_id]
 
         changes = get_change_overtime(
             run_id=run_id,
             account_id=account_id,
-            product_id=product.product_id,
+            product_id=row.product_id,
             amount=amount,
             timestamp_str=timestamp,
         )
 
-        prev_timestamp = parse(product.timestamp)
+        prev_timestamp = parse(row.timestamp)
         if (datetime.now() - prev_timestamp).days > 2:
             last_updated_str = days_ago(datetime.now(), prev_timestamp)
         else:
@@ -66,10 +66,10 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
 
         result_dict.append(
             {
-                product.product: {
+                row.product: {
                     "amount": round(amount),
-                    "risk": product.risk_level_descr,
-                    "chain": product.chain,
+                    "risk": row.risk_level_descr,
+                    "chain": row.chain,
                     "last_updated": last_updated_str,
                     "change": changes.last_run,
                     "week": changes.weekly,
@@ -81,10 +81,10 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
         result_table.append(
             [
                 account,
-                product.product,
+                row.product,
                 round(amount),
-                product.risk_level_descr,
-                product.chain,
+                row.risk_level_descr,
+                row.chain,
                 last_updated_str,
                 changes.last_run,
                 changes.weekly,

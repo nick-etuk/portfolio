@@ -3,7 +3,7 @@ from portfolio.calc.instrument_status.sql import base_select, insert_status_rows
 from icecream import ic
 
 
-def missing_once(run_mode: str, run_id: int):
+def z_missing_once(run_mode: str, run_id: int):
     """
     For each account,
     select all products that it has ever had (first effective date)

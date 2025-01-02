@@ -89,6 +89,6 @@ if __name__ == "__main__":
         run_mode = "normal"
     else:
         run_mode = sys.argv[1]
-    init()
+    init(422)
     # parse_html(run_mode)
-    parse_html("reload")
+    parse_html("reload", 422, 8)

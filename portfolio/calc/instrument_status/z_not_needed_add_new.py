@@ -3,7 +3,7 @@ import inspect
 import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.calc.instrument_status.sql import insert_sql
+from portfolio.calc.instrument_status.sql import insert_status_sql
 from icecream import ic
 
 
@@ -35,7 +35,7 @@ def add_new(run_id: int):
         ic(rows)
         if rows:
             c.execute(
-                f"{insert_sql} {select_sql}",
+                f"{insert_status_sql} {select_sql}",
                 (
                     current_timestamp_str,
                     run_id,

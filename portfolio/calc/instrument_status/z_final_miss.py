@@ -2,7 +2,7 @@ import inspect
 import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.calc.instrument_status.sql import insert_sql
+from portfolio.calc.instrument_status.sql import insert_status_sql
 from icecream import ic
 
 
@@ -45,5 +45,5 @@ def final_miss(run_id: int):
         rows = c.execute(select_sql, (run_id,)).fetchall()
         ic(rows)
         if rows:
-            c.execute(f"{insert_sql} {select_sql}", (run_id,))
+            c.execute(f"{insert_status_sql} {select_sql}", (run_id,))
             print(f"Inserted {len(rows)} rows")

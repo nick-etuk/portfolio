@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from dateutil.parser import parse
 from icecream import ic
 from portfolio.calc.changes.days_ago import days_ago
 from portfolio.utils.init import info, log, warn
@@ -267,8 +268,8 @@ def find_product(html, row, account_id):
             search_results.replace("$", "").replace(",", "")
         )
     else:
-        amount_sql = """
-        select act.amount as old_amount, act.timestamp,
+        last_seen_sql = """
+        select act.amount, act.timestamp,
         ac.descr as account, ac.address
         from actual_total act
         inner join product p
@@ -287,13 +288,14 @@ def find_product(html, row, account_id):
         with sl.connect(db) as conn:
             conn.row_factory = named_tuple_factory
             c = conn.cursor()
-            amount_row = c.execute(amount_sql, (account_id, row.product_id)).fetchone()
+            last_seen_row = c.execute(last_seen_sql, (account_id, row.product_id)).fetchone()
 
-        if amount_row and amount_row.old_amount:
+        # if last_seen_row and last_seen_row.amount:
+        if last_seen_row:
             # info(f"{amount_row.account} {amount_row.address}")
             # product_amount_str = input(f"{row.product} ({amount_row.old_amount}):")
             warn(
-                f"{row.product} not found in HTML. Last seen {days_ago(datetime.now(), amount_row.timestamp)} ago - {amount_row.old_amount} {amount_row.account} {amount_row.address}"
+                f"{row.product} not found in HTML. Last seen {days_ago(datetime.now(), parse(last_seen_row.timestamp))} ago - {last_seen_row.amount} {last_seen_row.account} {last_seen_row.address}"
             )
 
     return float(product_amount_str) if product_amount_str else 0

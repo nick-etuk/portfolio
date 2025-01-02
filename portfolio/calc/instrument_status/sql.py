@@ -1,4 +1,5 @@
 import sqlite3 as sl
+from portfolio.calc.changes.days_ago import plural
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
@@ -6,7 +7,7 @@ from tabulate import tabulate
 from portfolio.utils.init import info, log
 from icecream import ic
 
-insert_sql = """
+insert_status_sql = """
 insert into instrument_status (account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr)
 values (?, ?, ?, ?, ?, ?, ?, ?)
 """
@@ -67,10 +68,19 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
 
     for row in rows:
         if status == "PENDING_CLOSE":
-            info(
-                f"{row.account} {row.product} will be closed in  {4-absence_count} runs"
-            )
-            absence_count = row.absence_count + 1
+            absence_count = int(row.absence_count)
+
+            if absence_count >= 4:
+                info(
+                    f"{row.account} {row.product} has been missing {absence_count} times. It will be closed."
+                )
+                status = "CLOSED"
+            else:
+                absence_count += 1
+                info(
+                    f"{row.account} {row.product} will be closed in {plural(5-absence_count, 'run')}"
+                )
+            
         else:
             info(f"{row.account} {row.product} is {status}")
             absence_count = 0
@@ -82,7 +92,7 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
             conn.row_factory = named_tuple_factory
             c = conn.cursor()
             c.execute(
-                insert_sql,
+                insert_status_sql,
                 (
                     # account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr
                     row.account_id,
