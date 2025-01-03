@@ -21,10 +21,9 @@ change_col = ""
 table = []
 
 
-def get_products(run_id, account_id, account):
-    # print(
-    #     f"{__name__}.{inspect.stack()[0][3]} run_id: {run_id}, account_id: {account_id}, account: {account}"
-    # )
+def get_product_changes(run_id, account_id, account):
+    print(f"{__name__}.{inspect.stack()[0][3]}")
+    print(f"run_id: {run_id} account: {account}")
 
     sql = """
     select act.product_id, p.descr as product, p.volatile, act.amount, act.timestamp
@@ -89,7 +88,7 @@ def get_products(run_id, account_id, account):
 
 
 def get_account_changes(run_id):
-    # print(f"{__name__}.{inspect.stack()[0][3]}")
+    print(f"{__name__}.{inspect.stack()[0][3]}")
 
     sql = """
     select distinct act.run_id, act.account_id, ac.descr as account
@@ -106,7 +105,7 @@ def get_account_changes(run_id):
 
     results_array = []
     for row in rows:
-        prod_results = get_products(row.run_id, row.account_id, row.account)
+        prod_results = get_product_changes(row.run_id, row.account_id, row.account)
         if prod_results:
             for sub_row in prod_results:
                 results_array.append(sub_row)
@@ -115,7 +114,7 @@ def get_account_changes(run_id):
 
 
 def report_changes(run_id):
-    # print(f"{__name__}.{inspect.stack()[0][3]}")
+    print(f"{__name__}.{inspect.stack()[0][3]}")
     result = get_account_changes(run_id)
     return result
 

@@ -1,11 +1,13 @@
 import sqlite3 as sl
-from portfolio.calc.changes.days_ago import plural
-from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
+from portfolio.calc.instrument_status.current_actual import current_actual
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
+from portfolio.calc.changes.days_ago import plural
+from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from tabulate import tabulate
 from portfolio.utils.init import info, log
 from icecream import ic
+
 
 insert_status_sql = """
 insert into instrument_status (account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr)
@@ -108,13 +110,14 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
             conn.commit()
 
         if status == "CLOSED":
+            current_act = current_actual(row.account_id, row.product_id)
             insert_actual_total(
                 run_id=run_id,
                 timestamp=row.effdt,
                 account_id=row.account_id,
                 product_id=row.product_id,
-                amount=row.amount,
-                units=row.units,
-                price=row.price,
+                amount=current_act.amount,
+                units=current_act.units,
+                price=current_act.price,
                 status="I",
             )

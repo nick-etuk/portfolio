@@ -20,7 +20,7 @@ def days_ago(new_timestamp: datetime, old_timestamp: datetime):
 
     if days > 30:
         months = days / 30
-        plural(months, "month")
+        return plural(months, "month")
 
     if days > 7:
         weeks = days / 7

@@ -1,4 +1,6 @@
+from dateutil.parser import parse
 import sqlite3 as sl
+from portfolio.calc.changes.change_classes import Change
 from portfolio.calc.changes.change_str import change_str
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
@@ -6,7 +8,7 @@ from portfolio.utils.config import db
 from portfolio.utils.lib import (
     named_tuple_factory,
 )
-from portfolio.utils.init import log
+from portfolio.utils.init import info, log
 
 
 def get_manual_balance(account_id, run_id, timestamp):
@@ -52,7 +54,6 @@ def get_manual_balance(account_id, run_id, timestamp):
             product_id=row.product_id,
         )
 
-        change = ""
         if previous:
             change, _ = change_str(
                 amount=float(amount),
@@ -60,5 +61,11 @@ def get_manual_balance(account_id, run_id, timestamp):
                 previous_amount=previous.amount,
                 previous_timestamp=previous.timestamp,
             )
+            change = Change(
+            old_value=previous.amount,
+            new_value=amount,
+            from_date=parse(previous.timestamp),
+            to_date=parse(timestamp),
+        )
 
-        log(f"change: {change}")
+        info(f"Manual balance change: {change.change} in {change.timespan}")

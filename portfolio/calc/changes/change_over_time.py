@@ -100,16 +100,19 @@ def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -
             from_date=parse(previous.timestamp),
             to_date=timestamp,
         )
-        alltime_change_str = alltime_change.change_str
-        if not alltime_change_str:
-            warn(f"First entry exists, but all time change is blank for {account} {product}")
-            ic(previous)
-            ic(timestamp)
+        if round(amount) == round(previous.amount):
+            alltime_change_str = f"No change in {alltime_change.timespan}"
+        else:
+            alltime_change_str = alltime_change.change_str
+            if not alltime_change_str:
+                warn(f"First entry exists, but all time change is blank for {account} {product}")
+                ic(previous)
+                ic(amount, timestamp)
         days = (timestamp - parse(previous.timestamp)).days
         if days > 30 and alltime_change.change > 0:
             apr_new = alltime_change.apr
             apr_old = calc_apr(principal=previous.amount, change = amount - previous.amount, days=days)
-            alltime_change_str += f" {alltime_change.timespan} {round(apr_old,1)}% apr"
+            alltime_change_str += f"  {round(apr_old,1)}% apr in {alltime_change.timespan}"
 
     return Changes(
         last_run=last_run_change_str,
