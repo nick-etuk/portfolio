@@ -22,7 +22,7 @@ def covalent_api():
         # wallet_address=solomon_med,
         wallet_address="demo.eth",
     )
-    ic(response.data)
+    # ic(response.data)
     if not response.error:
         print(response.data)
     else:

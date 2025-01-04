@@ -22,4 +22,3 @@ if __name__ == "__main__":
         run_id=run_id, timestamp=get_timestamp(run_id), totals_mode="total"
     )
     # show_totals("cash")
-    ic(result)

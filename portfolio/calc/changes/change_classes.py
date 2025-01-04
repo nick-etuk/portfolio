@@ -1,4 +1,5 @@
 from dateutil.parser import parse
+from portfolio.calc.changes.apr import calc_apr
 from portfolio.calc.changes.days_ago import days_ago
 
 
@@ -14,13 +15,18 @@ class Change:
         self.percent = self.change / old_value if old_value else 0
         self.days = (to_date - from_date).days
         self.daily_change = self.change / self.days if self.days else 0
-        apr = self.daily_change * 365 / old_value if old_value else 0
-        self.apr = round(apr)
+
+        self.apr = 0
+        if old_value and self.change > 0:
+            self.apr = round(calc_apr(principal=old_value, change=self.change, days=self.days),1)
+            # apr_new = self.daily_change * 365 / old_value if old_value else 0
+
         self.timespan = days_ago(new_timestamp=to_date, old_timestamp=from_date)
 
-class Changes:
-    def __init__(self, last_run: str, weekly: str, monthly: str, alltime: str):
+class ChangeOverTime:
+    def __init__(self, last_run: str, weekly: str, monthly: str, alltime: str, alltime_apr: float):
         self.last_run = last_run
         self.weekly = weekly
         self.monthly = monthly
         self.alltime = alltime
+        self.alltime_apr = alltime_apr

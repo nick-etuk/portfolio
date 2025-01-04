@@ -2,7 +2,8 @@ from datetime import datetime
 from icecream import ic
 
 def plural(number: float, label: str) -> str:
-    number_str = "{:.0f}".format(number).strip("0").strip(".")
+    # number_str = "{:.0f}".format(number).strip("0").strip(".")
+    number_str = str(round(number))
     if round(number) == 1:
         return f"{number_str} {label}"
     return f"{number_str} {label}s"
@@ -15,7 +16,8 @@ def days_ago(new_timestamp: datetime, old_timestamp: datetime):
     if days > 365:
         years = days / 365
         label = "year" if round(years) == 1 else "years"
-        number_str = "{:.1f}".format(years).strip("0").strip(".")
+        # number_str = "{:.1f}".format(years).strip("0").strip(".")
+        number_str = str(round(years,1))
         return f"{number_str} {label}"
 
     if days > 30:

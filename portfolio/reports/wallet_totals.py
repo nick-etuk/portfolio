@@ -23,6 +23,7 @@ def get_wallet_totals():
     and act.status='A'
     and act.dummy='N'
     and (p.product_id='3' or p.data_source='MORALIS_TOKEN_API')
+    and act.amount > 10
     order by ac.account_id, sort_order, act.amount desc
     """
     with sl.connect(db) as conn:

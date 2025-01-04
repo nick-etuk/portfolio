@@ -22,8 +22,8 @@ table = []
 
 
 def get_product_changes(run_id, account_id, account):
-    print(f"{__name__}.{inspect.stack()[0][3]}")
-    print(f"run_id: {run_id} account: {account}")
+    # print(f"{__name__}.{inspect.stack()[0][3]}")
+    # print(f"run_id: {run_id} account: {account}")
 
     sql = """
     select act.product_id, p.descr as product, p.volatile, act.amount, act.timestamp
@@ -90,7 +90,7 @@ def get_product_changes(run_id, account_id, account):
 def get_account_changes(run_id):
     print(f"{__name__}.{inspect.stack()[0][3]}")
 
-    sql = """
+    account_sql = """
     select distinct act.run_id, act.account_id, ac.descr as account
     from actual_total act
     inner join account ac
@@ -101,15 +101,15 @@ def get_account_changes(run_id):
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        rows = c.execute(sql, (run_id,)).fetchall()
+        account_rows = c.execute(account_sql, (run_id,)).fetchall()
 
     results_array = []
-    for row in rows:
-        prod_results = get_product_changes(row.run_id, row.account_id, row.account)
+    for account_row in account_rows:
+        prod_results = get_product_changes(account_row.run_id, account_row.account_id, account_row.account)
         if prod_results:
-            for sub_row in prod_results:
-                results_array.append(sub_row)
-
+            for prod_row in prod_results:
+                results_array.append(prod_row)
+    results_array.sort(key=lambda x: x["apr"], reverse=True)
     return results_array
 
 

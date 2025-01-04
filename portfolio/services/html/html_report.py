@@ -1,11 +1,13 @@
 import os
 from datetime import datetime
+import platform
 import subprocess
 from tabulate import tabulate
-from portfolio.calc import targets
+from portfolio.calc.targets import targets
 from portfolio.calc.bitquery_balances import get_bitquery_balances
 from portfolio.calc.changes.report_changes import report_changes
-from portfolio.calc.totals import show_totals
+from portfolio.calc.totals.show_totals import show_totals
+from portfolio.reports.wallet_totals import get_wallet_totals
 from portfolio.utils.config import output_dir
 from portfolio.utils.init import current_logfile, init
 from portfolio.utils.lib import get_last_run_id
@@ -36,10 +38,10 @@ def create_html_report(
         {risk_violations}
         <br>
         <h2>Totals</h2>
-        {totals_table}
+        {totals_html}
         <br>
         <h2>Wallets</h2>
-        {wallet_table}
+        {wallet_html}
         <br>
         <h2>Status Changes</h2>
         {instrument_status_changes}
@@ -55,9 +57,8 @@ def create_html_report(
     """
     html_template = simple_html
 
-    changes_table = []
     headers = ["Account", "Product", "Value", "Change", "Last updated"]
-
+    changes_table = []
     for change_row in changes:
         changes_table.append(
             [
@@ -65,6 +66,7 @@ def create_html_report(
                 change_row["product"],
                 round(change_row["amount"]),
                 change_row['change'],
+                # change_row['apr'],
                 change_row['timespan'],
             ]
         )
@@ -72,8 +74,25 @@ def create_html_report(
     changes_html = tabulate(changes_table, tablefmt="html", headers=headers)
     # changes_html = grey_out_pending(changes_html)
 
+    totals_working = []
+    for totals_row in totals_table:
+        totals_working.append(
+            [
+                totals_row["account"],
+                totals_row["product"],
+                totals_row["amount"],
+                totals_row["risk"],
+                totals_row["chain"],
+                totals_row["last_updated"],
+                totals_row['change'],
+                totals_row['week'],
+                totals_row['month'],
+                totals_row['alltime'],
+                totals_row['alltime_apr'],
+            ]
+        )
     totals_html = tabulate(
-        totals_table,
+        totals_working,
         tablefmt="html",
         headers=[
             "Account",
@@ -86,6 +105,7 @@ def create_html_report(
             "Week",
             "Month",
             "Overall",
+            "Overall APR",
         ],
     )
     wallet_headers = [
@@ -98,7 +118,7 @@ def create_html_report(
         "Month",
         "Overall",
     ]
-    wallet_table = []
+    wallet_working = []
 
     # "account": row.account,
     # "product": row.product,
@@ -109,20 +129,23 @@ def create_html_report(
     # "monthly": changes.monthly,
     # "all_time": changes.all_time,
 
-    # for wallet_row in wallet_totals:
-    #     wallet_table.append(
-    #         [
-    #             wallet_row["account"],
-    #             wallet_row["product"],
-    #             round(wallet_row["amount"]),
-    #             # wallet_row["change"],
-    #         ]
-    #     )
+    for wallet_row in wallet_totals:
+        wallet_working.append(
+            [
+                wallet_row["account"],
+                wallet_row["product"],
+                wallet_row["chain"],
+                round(wallet_row["amount"]),
+                wallet_row["change"],
+                wallet_row["weekly"],
+                wallet_row["monthly"],
+                wallet_row["alltime"],
+            ]
+        )
 
-    # wallet_html = tabulate(wallet_table, tablefmt="html", headers=wallet_headers)
-    wallet_table_formatted = tabulate(
-        # wallet_totals, tablefmt="html", headers=wallet_headers
-        wallet_totals,
+    wallet_html = tabulate(
+        tabular_data=wallet_working,
+        headers=wallet_headers,
         tablefmt="html",
     )
 
@@ -153,8 +176,8 @@ def create_html_report(
     html = html.replace("{changes_table}", changes_html)
     html = html.replace("{risk_violations}", risk_violations)
     html = html.replace("{bitquery_balances}", bitquery_html)
-    html = html.replace("{totals_table}", totals_html)
-    html = html.replace("{wallet_table}", wallet_table_formatted)
+    html = html.replace("{totals_html}", totals_html)
+    html = html.replace("{wallet_html}", wallet_html)
     html = html.replace("{targets_table}", targets_html)
     html = html.replace("{log_messages}", log_messages)
     html = html.replace("{instrument_status_changes}", instrument_status_changes_html)
@@ -173,16 +196,22 @@ if __name__ == "__main__":
     init()
     run_id, timestamp = get_last_run_id()
     changes_table = report_changes(run_id)
-    totals_table = show_totals("total")
-    print("totals table 0b:", totals_table, "\n")
-    targets_table = targets()
-    print("totals table 1:", totals_table, "\n")
-    cash_balances = get_bitquery_balances()
+    totals = show_totals(run_id=run_id, timestamp=timestamp, totals_mode="total")
+    print("totals table 0b:", totals.totals_table, "\n")
+    targets_table = targets(totals)
+    print("totals table 1:", totals.totals_table, "\n")
     html_file = create_html_report(
         changes=changes_table,
-        totals_table=totals_table,
+        totals_table=totals.totals_table,
         targets=targets_table,
-        bitquery_balances=cash_balances,
+        bitquery_balances=None,
+        wallet_totals=get_wallet_totals(),
+        instrument_status_changes=None,
+        risk_violations="",
     )
 
-    subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
+    # subprocess.Popen([r"C:\Program Files\Mozilla Firefox\firefox.exe", html_file])
+    if platform.system() == "Windows":
+        subprocess.Popen([r"pwsh.exe", "-c", html_file], shell=True)
+    else:
+        subprocess.Popen([r"open", html_file])

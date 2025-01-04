@@ -3,7 +3,7 @@ import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.calc.changes.apr import calc_apr
-from portfolio.calc.changes.change_classes import Change, Changes
+from portfolio.calc.changes.change_classes import Change, ChangeOverTime
 from portfolio.calc.previous.first_entry import first_entry
 from portfolio.calc.previous.previous_by_days_elapsed import previous_by_days_elapsed
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
@@ -13,7 +13,7 @@ from icecream import ic
 from portfolio.utils.lib import get_last_run_id
 
 
-def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -> Changes:
+def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -> ChangeOverTime:
     account = ""
     product = ""
     
@@ -110,15 +110,15 @@ def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -
                 ic(amount, timestamp)
         days = (timestamp - parse(previous.timestamp)).days
         if days > 30 and alltime_change.change > 0:
-            apr_new = alltime_change.apr
-            apr_old = calc_apr(principal=previous.amount, change = amount - previous.amount, days=days)
-            alltime_change_str += f"  {round(apr_old,1)}% apr in {alltime_change.timespan}"
+            apr = alltime_change.apr
+            alltime_change_str += f"  {apr}% apr over {alltime_change.timespan}"
 
-    return Changes(
+    return ChangeOverTime(
         last_run=last_run_change_str,
         weekly=weekly_change_str,
         monthly=monthly_change_str,
         alltime=alltime_change_str,
+        alltime_apr=alltime_change.apr,
     )
 
 if __name__ == "__main__":

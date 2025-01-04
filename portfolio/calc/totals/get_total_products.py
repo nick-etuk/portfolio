@@ -7,7 +7,7 @@ from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 
 
-def get_products(run_id, timestamp, account_id, account, totals_mode):
+def get_total_products(run_id, timestamp, account_id, account, totals_mode):
     account_total = 0
 
     cash_filter = "and p.cash='Y'" if totals_mode == "cash" else ""
@@ -34,6 +34,7 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
     and p.product_id <> '3'
     and p.data_source <> 'MORALIS_TOKEN_API'
     and act.dummy = 'N'
+    and act.amount > 10
     {cash_filter}
     """
     with sl.connect(db) as conn:
@@ -43,14 +44,13 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
 
     # debts = get_debts_by_product(account_id)
     result_dict = []
-    result_table = []
 
     for row in rows:
         amount = row.amount
         # if product.product_id in debts:
         #     amount -= debts[product.product_id]
 
-        changes = get_change_overtime(
+        changeOverTime = get_change_overtime(
             run_id=run_id,
             account_id=account_id,
             product_id=row.product_id,
@@ -64,34 +64,20 @@ def get_products(run_id, timestamp, account_id, account, totals_mode):
         else:
             last_updated_str = ""
 
-        result_dict.append(
-            {
-                row.product: {
-                    "amount": round(amount),
-                    "risk": row.risk_level_descr,
-                    "chain": row.chain,
-                    "last_updated": last_updated_str,
-                    "change": changes.last_run,
-                    "week": changes.weekly,
-                    "month": changes.monthly,
-                    "alltime": changes.alltime,
-                }
-            }
-        )
-        result_table.append(
-            [
-                account,
-                row.product,
-                round(amount),
-                row.risk_level_descr,
-                row.chain,
-                last_updated_str,
-                changes.last_run,
-                changes.weekly,
-                changes.monthly,
-                changes.alltime,
-            ]
-        )
+        result_dict.append({
+                "account": account,
+                "product": row.product,
+                "amount": round(amount),
+                "risk": row.risk_level_descr,
+                "chain": row.chain,
+                "last_updated": last_updated_str,
+                "change": changeOverTime.last_run,
+                "week": changeOverTime.weekly,
+                "month": changeOverTime.monthly,
+                "alltime": changeOverTime.alltime,
+                "alltime_apr": changeOverTime.alltime_apr,
+            })
+
         account_total += amount
 
-    return round(account_total), result_dict, result_table
+    return round(account_total), result_dict
