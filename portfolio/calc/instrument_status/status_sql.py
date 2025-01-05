@@ -1,5 +1,6 @@
 import sqlite3 as sl
 from portfolio.calc.instrument_status.current_actual import current_actual
+from portfolio.calc.instrument_status.insert_status import insert_status
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.calc.changes.days_ago import plural
@@ -10,8 +11,8 @@ from icecream import ic
 
 
 insert_status_sql = """
-insert into instrument_status (account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr)
-values (?, ?, ?, ?, ?, ?, ?, ?)
+insert into instrument_status (account_id, product_id, effdt, instrument_status, absence_count, run_id)
+values (?, ?, current_timestamp, ?, ?, ?)
 """
 
 
@@ -90,24 +91,32 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
         if run_mode in ["dry_run", "report"]:
             continue
 
-        with sl.connect(db) as conn:
-            conn.row_factory = named_tuple_factory
-            c = conn.cursor()
-            c.execute(
-                insert_status_sql,
-                (
-                    # account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr
-                    row.account_id,
-                    row.product_id,
-                    row.effdt,
-                    status,
-                    absence_count,
-                    run_id,
-                    row.account,
-                    row.product,
-                ),
-            )
-            conn.commit()
+        insert_status(
+            account_id=row.account_id,
+            product_id=row.product_id, 
+            status=status, 
+            absence_count=absence_count, 
+            run_id=run_id
+        )
+        
+        # with sl.connect(db) as conn:
+        #     conn.row_factory = named_tuple_factory
+        #     c = conn.cursor()
+        #     c.execute(
+        #         insert_status_sql,
+        #         (
+        #             # account_id, product_id, effdt, instrument_status, absence_count, run_id, ac_descr, instrument_descr
+        #             row.account_id,
+        #             row.product_id,
+        #             row.effdt,
+        #             status,
+        #             absence_count,
+        #             run_id,
+        #             row.account,
+        #             row.product,
+        #         ),
+        #     )
+        #     conn.commit()
 
         if status == "CLOSED":
             current_act = current_actual(row.account_id, row.product_id)

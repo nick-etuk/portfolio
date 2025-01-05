@@ -55,17 +55,17 @@ def get_manual_balance(account_id, run_id, timestamp):
         )
 
         if previous:
-            change, _ = change_str(
-                amount=float(amount),
-                timestamp=timestamp,
-                previous_amount=previous.amount,
-                previous_timestamp=previous.timestamp,
-            )
+            # change, _ = change_str(
+            #     amount=float(amount),
+            #     timestamp=timestamp,
+            #     previous_amount=previous.amount,
+            #     previous_timestamp=previous.timestamp,
+            # )
             change = Change(
             old_value=previous.amount,
-            new_value=amount,
+            new_value=float(amount),
             from_date=parse(previous.timestamp),
             to_date=parse(timestamp),
         )
 
-        info(f"Manual balance change: {change.change} in {change.timespan}")
+        info(f"Manual balance change: {round(change.change)} in {change.timespan}")
