@@ -18,7 +18,7 @@ class Change:
 
         self.apr = 0
         if old_value and self.change > 0:
-            self.apr = round(calc_apr(principal=old_value, change=self.change, days=self.days),1)
+            self.apr = calc_apr(principal=old_value, change=self.change, days=self.days)
             # apr_new = self.daily_change * 365 / old_value if old_value else 0
 
         self.timespan = days_ago(new_timestamp=to_date, old_timestamp=from_date)

@@ -16,7 +16,7 @@ def binance_balance(account_id, product_id, product):
         if position["asset"] == asset_lookup[product]:
             total += float(position["amountInUSDT"])
 
-    return {"price": 0, "units": 0, "value": round(total)}
+    return {"price": 0, "units": 0, "value": total}
 
 
 if __name__ == "__main__":

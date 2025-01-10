@@ -68,7 +68,7 @@ def fetch_api(run_mode, run_id, timestamp):
                     timestamp=timestamp,
                     account_id=row.account_id,
                     product_id=row.product_id,
-                    amount=round(result["value"]),
+                    amount=result["value"],
                     units=result["units"],
                     price=result["price"],
                 ),

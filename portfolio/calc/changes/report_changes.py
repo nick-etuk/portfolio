@@ -70,7 +70,7 @@ def get_product_changes(run_id, account_id, account):
                             to_date=parse(row.timestamp))
 
         if change.change != 0:
-            info(f"Changes: {account} {row.product} {amount} {change.change} {change.timespan}")
+            info(f"Changes: {account} {row.product} {round(amount)} {change.change} {change.timespan}")
             # table.append([account, product.product, amount, change])
 
             # results.append(                {product.product: {"amount": amount, "change": change, "apr": apr}}            )

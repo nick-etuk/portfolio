@@ -33,6 +33,7 @@ def get_total_products(run_id, timestamp, account_id, account, totals_mode):
     and p.subtotal='N'
     and p.product_id <> '3'
     and p.data_source <> 'MORALIS_TOKEN_API'
+    and p.cash = 'N'
     and act.dummy = 'N'
     and act.amount > 10
     {cash_filter}
@@ -67,7 +68,7 @@ def get_total_products(run_id, timestamp, account_id, account, totals_mode):
         result_dict.append({
                 "account": account,
                 "product": row.product,
-                "amount": round(amount),
+                "amount": amount,
                 "risk": row.risk_level_descr,
                 "chain": row.chain,
                 "last_updated": last_updated_str,

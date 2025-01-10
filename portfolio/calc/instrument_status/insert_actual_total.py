@@ -18,19 +18,17 @@ def insert_actual_total(
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        c.execute(
-            insert_sql,
+        c.execute(insert_sql,
             (
                 next_seq,
                 account_id,
                 product_id,
                 run_id,
                 timestamp,
-                round(float(amount)),
+                float(amount),
                 units,
                 price,
                 status,
                 "N",
-            ),
-        )
+            ))
         conn.commit()

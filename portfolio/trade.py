@@ -2,7 +2,7 @@
 import sys
 import sqlite3 as sl
 from portfolio.calc.instrument_status.insert_status import insert_status
-from portfolio.calc.instrument_status.insert_trade import insert_trade
+from portfolio.trades.insert_trade import insert_trade
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.utils.config import db
 from portfolio.utils.init import info
@@ -55,6 +55,7 @@ def make_trade():
         return
     
     info(f"{action.capitalize()}ing {rows[0].account} {prod['product']} {rows[0].amount}")
+    input("Press Enter to confirm or ctrl-c to cancel: ")
 
     account_id = rows[0].account_id
     amount = rows[0].amount

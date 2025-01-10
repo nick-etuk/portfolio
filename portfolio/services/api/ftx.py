@@ -11,7 +11,7 @@ def ftx_balance(account_id, product_id, product):
     for coin in result['main']:
         total += coin['usdValue']
 
-    return {'price': 0, 'units': 0, 'value': round(total)}
+    return {'price': 0, 'units': 0, 'value': total}
 
 
 if __name__ == "__main__":

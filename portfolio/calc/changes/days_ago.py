@@ -4,7 +4,7 @@ from icecream import ic
 def plural(number: float, label: str) -> str:
     # number_str = "{:.0f}".format(number).strip("0").strip(".")
     number_str = str(round(number))
-    if round(number) == 1:
+    if number_str == "1":
         return f"{number_str} {label}"
     return f"{number_str} {label}s"
 

@@ -65,7 +65,7 @@ def create_html_report(
                 change_row["account"],
                 change_row["product"],
                 round(change_row["amount"]),
-                change_row['change'],
+                round(change_row['change']),
                 # change_row['apr'],
                 change_row['timespan'],
             ]

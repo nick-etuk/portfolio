@@ -1,4 +1,5 @@
 import sqlite3 as sl
+from portfolio.trades.net_trades import net_trades
 from portfolio.utils.config import db
 from portfolio.utils.dict_to_object import AttrDict
 from portfolio.utils.lib import named_tuple_factory
@@ -20,24 +21,19 @@ def previous_by_days_elapsed(account_id: int, product_id: int, days: float):
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
         c = conn.cursor()
-        row = c.execute(
-            sql,
-            (
-                f"-{days-1} days",
-                account_id,
-                product_id,
-            ),
-        ).fetchone()
+        row = c.execute(sql, (f"-{days-1} days", account_id, product_id)).fetchone()
 
     if not row:
-        return row
+        return None
 
-    # amount = net_amount(row.amount, account_id, product_id)
+    # net_amount = net_trades(as_of_date=row.timestamp, account_id=account_id, product_id=product_id)
+    # amount = net_amount if net_amount else row.amount
+    amount = row.amount
     return AttrDict(
         {
             "seq": row.seq,
             "run_id": row.run_id,
             "timestamp": row.timestamp,
-            "amount": row.amount,
+            "amount": amount,
         }
     )

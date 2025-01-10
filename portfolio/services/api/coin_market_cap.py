@@ -107,9 +107,9 @@ def cmc_get_value(run_mode, account_id, product_id, product):
             units = row.units
 
     return {
-        "price": round(price, 1),
-        "units": round(units, 1),
-        "value": round(price * float(units)),
+        "price": price,
+        "units": units,
+        "value": price * float(units),
     }
 
 

@@ -77,9 +77,9 @@ def get_target_accounts(totals: TotalClass):
             [
                 row.account,
                 principal,
-                round(accrued),
-                round(totals.combined),
-                round(accrued - totals.combined),
+                accrued,
+                totals.combined,
+                accrued - totals.combined,
             ]
         )
         # print(f"{row.account} -  \t\t\t Invested:{principal}, \t\t expected: {round(accrued)} current: {round(current_value)}, shortfall: {round(accrued-current_value)}")

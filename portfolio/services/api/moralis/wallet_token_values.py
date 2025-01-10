@@ -54,7 +54,7 @@ def insert_transaction(run_id, timestamp, account_id, symbol: dict):
         timestamp=timestamp,
         account_id=account_id,
         product_id=symbol_name,
-        amount=round(value),
+        amount=value,
         units=symbol["units"],
         price=symbol["price"],
     )
@@ -74,9 +74,8 @@ def save_balances(run_mode, run_id, timestamp, account_id, account, symbols: dic
         if value < 1:
             # print(f"Skipping {symbol_name} with value {value}")
             continue
-        value = round(value)
         info(
-            f"Moralis API token: {account} \t {symbol_name} {symbol['chain']} \t {value}"
+            f"Moralis API token: {account} \t {symbol_name} {symbol['chain']} \t {round(value)}"
         )
         if run_mode == "dry_run":
             continue

@@ -24,10 +24,9 @@ def first_entry(account_id: int, product_id: int):
         row = c.execute(sql,(account_id, product_id)).fetchone()
 
     if not row:
-        warn("No first record for {account_id}, {product_id}")
+        warn(f"No first record for {account_id} {product_id}")
         return None
 
-    # amount = net_amount(row.amount, account_id, product_id)
     return AttrDict(
         {
             "seq": row.seq,

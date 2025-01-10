@@ -1,8 +1,8 @@
 from dateutil.parser import parse
 import sqlite3 as sl
+from portfolio.trades.net_trades import net_trades
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
-from portfolio.calc.changes.apr import calc_apr
 from portfolio.calc.changes.change_classes import Change, ChangeOverTime
 from portfolio.calc.previous.first_entry import first_entry
 from portfolio.calc.previous.previous_by_days_elapsed import previous_by_days_elapsed
@@ -47,6 +47,9 @@ def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -
     monthly_change_str = ""
     alltime_change_str = ""
     timestamp = parse(timestamp_str)
+
+    # net_amount = net_trades(as_of_date=timestamp_str, account_id=account_id, product_id=product_id)
+    # if net_amount: amount = net_amount
 
     previous = previous_by_run_id(
         run_id=run_id, account_id=account_id, product_id=product_id
@@ -111,7 +114,7 @@ def get_change_overtime(run_id, account_id, product_id, amount, timestamp_str) -
         days = (timestamp - parse(previous.timestamp)).days
         if days > 30 and alltime_change.change > 0:
             apr = alltime_change.apr
-            alltime_change_str += f"  {apr}% apr over {alltime_change.timespan}"
+            alltime_change_str += f"  {round(apr,1)}% apr over {alltime_change.timespan}"
 
     return ChangeOverTime(
         last_run=last_run_change_str,

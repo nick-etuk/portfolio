@@ -94,7 +94,7 @@ def get_bitquery_balances(run_mode):
 
                 if value > 10:
                     print(f"{account} {chain} {symbol} {round(value)}")
-                    result.append([account, chain, symbol, round(value)])
+                    result.append([account, chain, symbol, value])
 
     print("bitquery balances:", result)
     return result

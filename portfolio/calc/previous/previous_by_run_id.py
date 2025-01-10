@@ -1,6 +1,7 @@
 import inspect
 import sqlite3 as sl
 from portfolio.calc.debts_by_product import net_amount
+from portfolio.trades.net_trades import net_trades
 from portfolio.utils.config import db
 from portfolio.utils.dict_to_object import AttrDict
 from portfolio.utils.init import info, warn
@@ -49,12 +50,14 @@ def previous_by_run_id(run_id, account_id, product_id):
 
     # info(f"previous_by_run_id: account: {account_id} product: {product_id}")
     # info(f"run_id: {run_id} prev_run_id: {prev_run_id} prev amount: {row.amount}")
-
+    # net_amount = net_trades(as_of_date=row.timestamp, account_id=account_id, product_id=product_id)
+    # amount = net_amount if net_amount else row.amount
+    amount = row.amount
     return AttrDict(
         {
             "run_id": row.run_id, 
             "timestamp": row.timestamp, 
-            "amount": row.amount
+            "amount": amount
         }
     )
     # return {

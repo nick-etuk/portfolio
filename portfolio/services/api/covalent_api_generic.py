@@ -160,14 +160,14 @@ def get_value(account_id, product_id, product):
             units = row.units
 
     return {
-        "price": round(price, 1),
-        "units": round(units, 1),
-        "value": round(price * float(units)),
+        "price": price,
+        "units": units,
+        "value": price * float(units),
     }
 
 
 if __name__ == "__main__":
     init()
-    print(cmc_get_value(account_id=1, product_id="STG", product=""))
+    print(get_value(account_id=1, product_id="STG", product=""))
     # print(cmc_get_value(account_id=2, product_id='GHNY', product=''))
     # print(cmc_get_value(account_id=6, product_id='FTT', product=''))

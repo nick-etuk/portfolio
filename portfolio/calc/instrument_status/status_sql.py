@@ -10,12 +10,6 @@ from portfolio.utils.init import info, log
 from icecream import ic
 
 
-insert_status_sql = """
-insert into instrument_status (account_id, product_id, effdt, instrument_status, absence_count, run_id)
-values (?, ?, current_timestamp, ?, ?, ?)
-"""
-
-
 def base_select(
     status_filter: str,
     absence_column: str,

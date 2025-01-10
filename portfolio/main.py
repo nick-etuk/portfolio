@@ -1,3 +1,4 @@
+from datetime import datetime
 import platform
 import subprocess
 import sys
@@ -22,7 +23,7 @@ from portfolio.services.queue.file_based_queue import queue_html_accounts
 from portfolio.services.html.html_report import create_html_report
 from portfolio.services.html.parse_html import parse_html
 
-from portfolio.utils.init import error, info, init, log
+from portfolio.utils.init import error, info, init, log, warn
 from portfolio.utils.config import webdriver
 from portfolio.utils.next_run_id import get_timestamp, next_run_id
 
@@ -103,6 +104,10 @@ if __name__ == "__main__":
         reload_account = sys.argv[3]
 
     init(run_id)
+    if not timestamp:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        warn(f"No timestamp found for {run_id}. Using current timestamp {timestamp}")
+        
     log(f"Run mode {run_mode}, run_id {run_id}")
 
     # instrument_status_changes = update_instrument_status(run_mode, run_id)
