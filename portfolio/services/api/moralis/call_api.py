@@ -1,6 +1,7 @@
 import glob
 import os
 from datetime import datetime
+from portfolio.services.api.moralis.load_last_response import load_last_response
 from portfolio.utils.config import moralis_api_key, log_dir
 from portfolio.utils.init import init, log, info
 from icecream import ic
@@ -52,28 +53,13 @@ def save_response(response: object, account: str, chain: str) -> str:
     return filename
 
 
-def load_last_response(account: str, chain: str):
-    # filename = "/Users/macbook-work/Documents/del/log/portfolio/moralis_balances/Solomon_Medium_polygon_2024-12-08_11_11_02.json"
-    # ic(account, chain)
-    output_dir = os.path.join(log_dir, "moralis_balances")
-    os.makedirs(output_dir, exist_ok=True)
-    filespec = os.path.join(output_dir, f"{account.replace(' ','_')}_{chain}_*.json")
-    list_of_files = glob.glob(filespec)
-    if not list_of_files:
-        return None
-    latest_file = max(list_of_files, key=os.path.getctime)
-    ic(latest_file)
-    with open(latest_file, "r") as f:
-        response = json.loads(f.read())
-    return response
-
-
 if __name__ == "__main__":
     init()
     account = "Solomon Medium"
     chain = "polygon"
     endpoint = "defi"
     wallet_address = "0x3Cb83df6CF19831ca241159137b75C71D9087294"
+    # response=load_last_response(api_name="moralis_balances", account=account, category=chain):
     response = call_moralis_api(endpoint, wallet_address, chain)
     save_response(response, account, chain)
-    # response = load_last_response()
+

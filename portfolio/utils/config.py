@@ -58,6 +58,7 @@ cmc_api_key = config["default"]["cmc_api_key"]
 bitquery_api_key = config["default"]["bitquery_api_key"]
 covalent_api_key = config["default"]["covalent_api_key"]
 moralis_api_key = config["default"]["moralis_api_key"]
+exchange_rate_api_key = config["default"]["exchange_rate_api_key"]
 
 mysql_user = config["default"]["mysql_user"]
 mysql_password = config["default"]["mysql_password"]

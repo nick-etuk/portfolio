@@ -18,7 +18,7 @@ def make_trade():
     action = sys.argv[1].lower()
     args = sys.argv[2:]
 
-    if action not in ["buy", "sell"]:
+    if action not in ["buy", "sell", "watch"]:
         info(f"Invalid action {action}")
         return
     

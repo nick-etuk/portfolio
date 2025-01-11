@@ -4,6 +4,7 @@ import inspect
 from portfolio.calc.changes.change_str import change_str
 from portfolio.calc.instrument_status.insert_actual_total import insert_actual_total
 from portfolio.calc.previous.previous_by_run_id import previous_by_run_id
+from portfolio.services.api.exchange_rate import get_exchange_rate
 from portfolio.utils.config import db
 from portfolio.utils.lib import (
     get_last_run_id,
@@ -46,6 +47,7 @@ def fetch_api(run_mode, run_id, timestamp):
         "BINANCE_API": binance_balance,
         "CMC": cmc_get_value,
         "MORALIS_API": moralis_defi_balance,
+        "EXCHANGE_RATE_API": get_exchange_rate,
     }
 
     with sl.connect(db) as conn:
@@ -60,7 +62,7 @@ def fetch_api(run_mode, run_id, timestamp):
                 run_mode=run_mode,
                 account_id=row.account_id,
                 product_id=row.product_id,
-                product=row.product,
+                product=row.product
             )
             if result:
                 insert_actual_total(

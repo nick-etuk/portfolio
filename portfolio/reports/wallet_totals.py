@@ -21,8 +21,6 @@ def get_wallet_totals():
         where account_id=act.account_id
         and product_id=act.product_id)
     and act.status='A'
-    -- and act.dummy='N'
-    -- and (p.product_id='3' or p.data_source='MORALIS_TOKEN_API')
     and p.cash='Y'
     and act.amount > 10
     order by ac.account_id, sort_order, act.amount desc

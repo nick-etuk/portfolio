@@ -31,8 +31,7 @@ def get_total_products(run_id, timestamp, account_id, account, totals_mode):
     -- and act.run_id = ?
     and act.status='A'
     and p.subtotal='N'
-    and p.product_id <> '3'
-    and p.data_source <> 'MORALIS_TOKEN_API'
+    -- and p.product_id <> '3'
     and p.cash = 'N'
     and act.dummy = 'N'
     and act.amount > 10
