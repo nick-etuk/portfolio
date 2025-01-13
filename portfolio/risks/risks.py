@@ -1,4 +1,5 @@
 from icecream import ic
+from portfolio.risks.auto_funds_managers3 import auto_fund_managers3
 from portfolio.utils.init import init, log
 from portfolio.risks.ip_address_changed import ip_address_changed
 
@@ -24,35 +25,44 @@ def check_risks(combined_total):
 
     rule_factory = [
         {
-            "rule_id": 1,
+            "rule_id": 10,
             # 'descr': rf"No more than 10% ({round(combined_total * 0.1)}) in a single product, regardless of risk.",
             "descr": "No more than 6500 in a single product, regardless of risk.",
             "function": medium_risk_products,
         },
         {
-            "rule_id": 2,
-            # 'descr': rf"No more than 20% ({round(combined_total * 0.4)}) with one automated fund manager.",
+            "rule_id": 20,
             "descr": "No more than 13K with one automated fund manager.",
             "function": auto_fund_managers,
         },
+        # {
+        #     "rule_id": 21,
+        #     'descr': rf"No more than 20% ({round(combined_total * 0.4)}) with one automated fund manager.",
+        #     "function": auto_fund_managers2,
+        # },
         {
-            "rule_id": 3,
+            "rule_id": 22,
+            "descr": "No more than two positions with one automated fund manager.",
+            "function": auto_fund_managers3,
+        },
+        {
+            "rule_id": 30,
             # 'descr': f"No more than 5% (should be {round(combined_total * 0.05)} - manually set to 850) in a high risk product.",
             "descr": "No more than 850 in one high risk product.",
             "function": high_risk_products,
         },
         {
-            "rule_id": 4,
+            "rule_id": 40,
             "descr": "Product too high risk for account",
             "function": product_too_high_risk,
         },
         {
-            "rule_id": 5,
+            "rule_id": 50,
             "descr": "Very high interest rate. Could be risky.",
             "function": interest_rate_too_high,
         },
         {
-            "rule_id": 6,
+            "rule_id": 60,
             "descr": "Your IP address has changed. Update Binance API whitelist and AWS security groups.",
             "function": ip_address_changed,
         },

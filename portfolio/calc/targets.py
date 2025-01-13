@@ -89,9 +89,7 @@ def get_target_accounts(totals: TotalClass):
 
 def targets(totals: TotalClass):
     # print(f"{__name__}.{inspect.stack()[0][3]}")
-    result = get_target_accounts(totals)
-    # r2 = np.sort(result, axis=0)
-    return result
+    return get_target_accounts(totals)
 
 
 if __name__ == "__main__":

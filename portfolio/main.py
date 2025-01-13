@@ -12,12 +12,8 @@ from portfolio.reports.wallet_totals import get_wallet_totals
 from portfolio.risks.risks import check_risks
 from portfolio.services.api.fetch_api import fetch_api
 
-from portfolio.services.api.moralis.check_moralis_for_new_protocols import (
-    check_moralis_for_new_protocols,
-)
-from portfolio.services.api.moralis.wallet_token_values import (
-    moralis_wallet_token_values,
-)
+from portfolio.services.api.moralis.check_moralis_for_new_protocols import check_moralis_for_new_protocols
+from portfolio.services.api.moralis.wallet_token_values import moralis_wallet_token_values
 from portfolio.services.html.fetch_html_cypress import fetch_html_cypress
 from portfolio.services.queue.file_based_queue import queue_html_accounts
 from portfolio.services.html.html_report import create_html_report
@@ -28,7 +24,7 @@ from portfolio.utils.config import webdriver
 from portfolio.utils.next_run_id import get_timestamp, next_run_id
 
 from portfolio.interactive.manual_balances.manual_balances import get_manual_balances
-from portfolio.utils.utils import show_usage
+from portfolio.utils.show_usage import show_usage
 
 
 def fetch_html():
@@ -39,30 +35,25 @@ def fetch_html():
 
 
 def main():
-    if run_mode != "report":
+    if run_mode == "normal":
         get_manual_balances(run_id, timestamp)
         fetch_api(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
-        fetch_html()
-        moralis_wallet_token_values(
-            run_mode=run_mode, run_id=run_id, timestamp=timestamp
-        )
+        moralis_wallet_token_values(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
         check_moralis_for_new_protocols()
+        fetch_html()
 
     instrument_status_changes = update_instrument_status(run_mode, run_id)
     changes = report_changes(run_id)
     totals = show_totals(run_id, timestamp, "total")
-    # totals = show_totals("cash")
     wallet_totals = get_wallet_totals()
-    my_targets = targets(totals)
-    # bitquery_balances = get_bitquery_balances(run_mode) todo: fix this
+    # my_targets = targets(totals) #todo: fix this
     risk_violations = check_risks(totals.combined)
 
     html_file = create_html_report(
         changes=changes,
         totals_table=totals.totals_table,
         wallet_totals=wallet_totals,
-        targets=my_targets,
-        # bitquery_balances=bitquery_balances,
+        targets=None,
         bitquery_balances="",
         instrument_status_changes=instrument_status_changes,
         risk_violations=risk_violations,
@@ -107,7 +98,7 @@ if __name__ == "__main__":
     if not timestamp:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         warn(f"No timestamp found for {run_id}. Using current timestamp {timestamp}")
-        
+
     log(f"Run mode {run_mode}, run_id {run_id}")
 
     # instrument_status_changes = update_instrument_status(run_mode, run_id)

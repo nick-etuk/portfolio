@@ -5,7 +5,7 @@ from portfolio.utils.config import db
 from icecream import ic
 
 
-def get_details(manager: str):
+def get_product_details_by_manager(manager: str):
     sql = """
     select ac.account_id, ac.descr as account, p.descr as product, p.chain, act.amount
     from actual_total act
@@ -104,7 +104,7 @@ def auto_fund_managers(combined_total: float):
                 <td>Amount</td>
             </tr>
         """
-        detail_rows, detail_total = get_details(row.manager)
+        detail_rows, detail_total = get_product_details_by_manager(row.manager)
 
         detail_footer = f"""
         <tr>

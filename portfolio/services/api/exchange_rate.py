@@ -37,8 +37,6 @@ def call_exchange_rate_api():
 
 
 def extract_exchange_rate(response: object, currency: str):
-    ic(response)
-
     if currency not in response["conversion_rates"]:
         warn(f"exchange_rate_api: No conversion rate for {currency}")
         ic(response)

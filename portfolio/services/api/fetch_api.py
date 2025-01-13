@@ -40,7 +40,7 @@ def fetch_api(run_mode, run_id, timestamp):
             and product_id=act.product_id
             )
         /* and p.data_source in ('CMC', 'MORALIS_API', 'BINANCE_API') */
-        and p.data_source in ('CMC', 'MORALIS_API')
+        and p.data_source in ('CMC', 'MORALIS_API', 'EXCHANGE_RATE_API')
         and act.status='A'
         """
     api = {
