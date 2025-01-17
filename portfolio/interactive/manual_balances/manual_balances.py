@@ -10,6 +10,9 @@ from icecream import ic
 
 
 def get_manual_balances(run_id, timestamp):
+    print("Please check Defi Lama before proceeding.")
+    input("Press Enter to continue:")
+    
     if not timestamp:
         timestamp = datetime.now().isoformat()
 

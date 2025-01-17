@@ -12,9 +12,6 @@ from portfolio.utils.init import info, log
 
 
 def get_manual_balance(account_id, run_id, timestamp):
-    print("Please check Defi Lama before proceeding.")
-    input("Press Enter to continue:")
-
     product_sql = """
     select p.product_id, p.descr as product, act.amount,
     ac.descr as account, ac.address
