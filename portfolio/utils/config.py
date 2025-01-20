@@ -22,7 +22,7 @@ else:
 
 """
 
-host = socket.gethostname()
+current_host = socket.gethostname()
 
 ini_file_path = {
     "Evesham": r"E:\\Google Drive\\asterlan sync\\config\\portfolio.ini",
@@ -30,18 +30,19 @@ ini_file_path = {
     "Thinkpad-Dan": r"C:\Users\nick_\OneDrive\data\portfolio\config\portfolio.ini",
     # "Nicholass-MacBook-Pro.local": r"/Users/macbook-work/Documents/config/portfolio.ini",
     "Nicholass-MacBook-Pro.local": r"/Users/macbook-work/Library/CloudStorage/OneDrive-Personal/data/portfolio/config/portfolio.ini",
+    "DESKTOP-2022": r"C:\Users\Nick\OneDrive\data\portfolio\config\portfolio.ini",
 }
 
 config = configparser.ConfigParser()
-config.read(ini_file_path[host])
-data_dir = config[host]["data_dir"]
-webdriver = config[host]["webdriver"]
+config.read(ini_file_path[current_host])
+data_dir = config[current_host]["data_dir"]
+webdriver = config[current_host]["webdriver"]
 
 db = os.path.join(data_dir, "portfolio.db")
 if not os.path.exists(db):
     raise FileNotFoundError(f"sqlite database file not found at {db}")
 
-log_dir = config[host]["log_dir"]
+log_dir = config[current_host]["log_dir"]
 # log_file = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)

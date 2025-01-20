@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3 as sl
 from portfolio.utils.config import db
 from portfolio.utils.init import log, warn
@@ -9,8 +10,8 @@ def next_run_id(run_mode):
         return 0, None
 
     sql = """
-    select run_id, timestamp from html_parse_queue
-    where run_id=(select max(run_id) from html_parse_queue)
+    select run_id, timestamp from actual_total
+    where run_id=(select max(run_id) from actual_total)
     """
     with sl.connect(db) as conn:
         conn.row_factory = named_tuple_factory
@@ -18,16 +19,18 @@ def next_run_id(run_mode):
         row = c.execute(sql).fetchone()
 
     run_id = row.run_id
+    timestamp = row.timestamp
     if run_mode == "normal":
         run_id += 1
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    return run_id, row.timestamp
+    return run_id, timestamp
 
 
 def get_timestamp(run_id):
     sql = """
     select min(timestamp) as timestamp 
-    from html_parse_queue
+    from actual_total
     where run_id=?
     """
     with sl.connect(db) as conn:

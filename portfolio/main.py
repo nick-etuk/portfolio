@@ -94,11 +94,11 @@ if __name__ == "__main__":
     if args_len == 4:
         reload_account = sys.argv[3]
 
-    init(run_id)
     if not timestamp:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         warn(f"No timestamp found for {run_id}. Using current timestamp {timestamp}")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    init(run_id)
     log(f"Run mode {run_mode}, run_id {run_id}")
 
     # instrument_status_changes = update_instrument_status(run_mode, run_id)

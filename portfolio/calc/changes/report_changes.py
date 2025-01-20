@@ -52,38 +52,43 @@ def get_product_changes(run_id, account_id, account):
         # )
         amount = row.amount
         # print(f"{row.product_id=}, {row.product=}, {amount=}")
-        change = ""
+        change = None
         previous = previous_by_run_id(
             run_id=run_id, account_id=account_id, product_id=row.product_id
         )
 
-        if previous:
-            # change, apr = change_str(
-            #     amount=amount,
-            #     timestamp=row.timestamp,
-            #     previous_amount=previous.amount,
-            #     previous_timestamp=previous.timestamp,
-            # )
-            change = Change(old_value= previous.amount,
-                            new_value=amount,
-                            from_date=parse(previous.timestamp),
-                            to_date=parse(row.timestamp))
+        if not previous:
+            info(f"No previous record for {account} {row.product}")
+            continue
+        # change, apr = change_str(
+        #     amount=amount,
+        #     timestamp=row.timestamp,
+        #     previous_amount=previous.amount,
+        #     previous_timestamp=previous.timestamp,
+        # )
+        change = Change(old_value= previous.amount,
+                        new_value=amount,
+                        from_date=parse(previous.timestamp),
+                        to_date=parse(row.timestamp))
 
-        if change.change != 0:
-            info(f"Changes: {account} {row.product} {round(amount)} {change.change} {change.timespan}")
-            # table.append([account, product.product, amount, change])
+        if change.change == 0:
+            continue
 
-            # results.append(                {product.product: {"amount": amount, "change": change, "apr": apr}}            )
-            results.append(
-                {
-                    "account": account,
-                    "product": row.product,
-                    "amount": amount,
-                    "change": change.change,
-                    "apr": change.apr,
-                    "timespan": change.timespan,
-                }
-            )
+        info(f"Changes: {account} {row.product} {round(amount)} {round(change.change)} {change.timespan}")
+        # table.append([account, product.product, amount, change])
+
+        # results.append(                {product.product: {"amount": amount, "change": change, "apr": apr}}            )
+        results.append(
+            {
+                "account": account,
+                "product": row.product,
+                "amount": amount,
+                "change": change.change,
+                "apr": change.apr,
+                "timespan": change.timespan,
+            }
+        )
+    results.sort(key=lambda x: x["apr"], reverse=True)
     return results
 
 

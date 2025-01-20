@@ -10,7 +10,7 @@ from portfolio.utils.lib import (
     get_last_run_id,
     named_tuple_factory,
 )
-from portfolio.utils.init import init, log, info
+from portfolio.utils.init import init, log, info, warn
 
 # from changes import change_str, get_last_run_id
 # from portfolio.services.api.ftx import ftx_balance
@@ -62,44 +62,43 @@ def fetch_api(run_mode, run_id, timestamp):
                 run_mode=run_mode,
                 account_id=row.account_id,
                 product_id=row.product_id,
-                product=row.product
-            )
-            if result:
-                insert_actual_total(
-                    run_id=run_id,
-                    timestamp=timestamp,
-                    account_id=row.account_id,
-                    product_id=row.product_id,
-                    amount=result["value"],
-                    units=result["units"],
-                    price=result["price"],
-                ),
-
-                previous = previous_by_run_id(
-                    run_id=run_id,
-                    account_id=row.account_id,
-                    product_id=row.product_id,
-                )
-
-                change = ""
-                if previous:
-                    change, _ = change_str(
-                        amount=result["value"],
-                        timestamp=timestamp,
-                        previous_amount=previous.amount,
-                        previous_timestamp=previous.timestamp,
-                    )
-
-            log(
-                f"{row.data_source} {row.account} {row.product}: {round(result['value'])}  {change}"
-            )
+                product=row.product)
         except Exception as e:
             msg = f"{e}"
-            # print(msg)
-            log(msg[:130])
-            print(
-                f"Error row: {row.data_source}, {row.account}, {row.product}, {round(result['value'])}"
+            warn(msg[:130])
+            log(f"Error row: {row.data_source}, {row.account}, {row.product}")
+            continue
+
+        if not result["value"]:
+            warn(f"No value returned by {row.data_source} API for {row.account}, {row.product}")
+            continue
+
+        insert_actual_total(
+            run_id=run_id,
+            timestamp=timestamp,
+            account_id=row.account_id,
+            product_id=row.product_id,
+            amount=result["value"],
+            units=result["units"],
+            price=result["price"],
+        ),
+
+        previous = previous_by_run_id(
+            run_id=run_id,
+            account_id=row.account_id,
+            product_id=row.product_id,
+        )
+
+        change = ""
+        if previous:
+            change, _ = change_str(
+                amount=result["value"],
+                timestamp=timestamp,
+                previous_amount=previous.amount,
+                previous_timestamp=previous.timestamp,
             )
+
+        info(f"{row.data_source} {row.account} {row.product}: {round(result['value'])}  {change}")
 
 
 if __name__ == "__main__":

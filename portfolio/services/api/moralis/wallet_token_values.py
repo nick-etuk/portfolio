@@ -24,15 +24,24 @@ from icecream import ic
 
 
 def insert_product(symbol_name, chain):
-    insert_sql = """
-    insert into product (product_id, descr, data_source, chain, cash, volatile) 
-    values (?, ?, ?, ?, 'Y', ?)
-    """
-
     if symbol_name in existing_moralis_products:
         return
 
     existing_moralis_products.append(symbol_name)
+    exists_sql = """
+    select 1 as product_exists from product where product_id=?
+    """
+    with sl.connect(db) as conn:
+        conn.row_factory = named_tuple_factory
+        c = conn.cursor()
+        row = c.execute(exists_sql, (symbol_name,)).fetchone()
+        if row:
+            return
+
+    insert_sql = """
+    insert into product (product_id, descr, data_source, chain, cash, volatile) 
+    values (?, ?, ?, ?, 'Y', ?)
+    """
 
     volatile = "N" if symbol_name in stable_coins else "Y"
     with sl.connect(db) as conn:
@@ -68,7 +77,7 @@ def save_balances(run_mode, run_id, timestamp, account_id, account, symbols: dic
             ic(symbol)
             continue
         if account == "Old Personal Medium" and symbol_name == "BUSD":
-            # Incorrect value from Moralis token API for Old Personal Medium 	 BUSD bsc 	 13006
+            # Incorrect values returned by Moralis for Old Personal Medium 	 BUSD bsc 	 13006
             continue
         value = symbol["value"]
         if value < 1:

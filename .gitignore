@@ -93,3 +93,5 @@ redis_test.py
 *$py.class
 
 cypress/cypress/e2e/data
+portfolio.egg-info/
+portfolio.egg-info/PKG-INFO

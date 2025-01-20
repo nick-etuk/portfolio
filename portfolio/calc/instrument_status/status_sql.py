@@ -72,6 +72,7 @@ def insert_status_rows(sql: str, run_mode: str, run_id: int, status: str):
                     f"{row.account} {row.product} has been missing {absence_count} times. It will be closed."
                 )
                 status = "CLOSED"
+                absence_count = 0
             else:
                 absence_count += 1
                 info(
