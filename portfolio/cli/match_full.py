@@ -1,9 +1,14 @@
 import sqlite3 as sl
 from portfolio.utils.config import db
-from portfolio.utils.init import info
 from portfolio.utils.lib import named_tuple_factory
 
-def find_trade_product(words: list[str]) -> str:
+def match_full(words: list[str]) -> str:
+    '''
+    Search for a product in a permissive way.
+    Only one product must match.
+    Case insensitive.
+    All words must match.
+    '''
     prod_sql = """
     select product_id, descr as product
     from product
@@ -25,15 +30,4 @@ def find_trade_product(words: list[str]) -> str:
         if all_words_matched:
             matches.append({"product_id": row.product_id, "product": row.product})
     
-    if len(matches) == 0:
-        joined_words = " ".join(words)
-        info(f"Product {joined_words} not found")
-        return
-    
-    if len(matches) > 1:
-        info("Multiple matches found")
-        for match in matches:
-            info(f"{match['product_id']} {match['product']}")
-        return
-    
-    return matches[0]
+    return matches

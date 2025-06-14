@@ -1,6 +1,6 @@
 from dateutil.parser import parse
 import sqlite3 as sl
-from portfolio.trades.net_trades import net_trades
+from portfolio.cli.net_trades import net_trades
 from portfolio.utils.config import db
 from portfolio.utils.lib import named_tuple_factory
 from portfolio.calc.changes.change_classes import Change, ChangeOverTime

@@ -1,4 +1,4 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: portfolio
 Version: 0.0.1
 Summary: Portfolio tracker for crypto assets
@@ -46,4 +46,4 @@ python -m venv .venv
 
 pip install -r portfolio\requirements.txt
 
-
+pip install -e .

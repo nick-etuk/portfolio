@@ -61,7 +61,7 @@ def find_product(html, row):
         d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -86,7 +86,7 @@ def find_product(html, row):
             if not link:
                 print(f"Link not found for {component}")
                 return ""
-        amount = parent.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        amount = parent.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not amount:
             print("Amount not found in parent div")
             return ""
@@ -127,7 +127,7 @@ def find_product(html, row):
         d2 = div.find_next("div", text=coin)
         if not d2:
             return ""
-        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -147,7 +147,7 @@ def find_product(html, row):
         d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -164,7 +164,7 @@ def find_product(html, row):
         d2 = div.find_next("div", text=pool)
         if not d2:
             return ""
-        d3 = d2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        d3 = d2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not d3:
             return ""
         result = d3.text
@@ -179,9 +179,9 @@ def find_product(html, row):
         div2 = div1.find_next("div", text=project_label)
         if not div2:
             return ""
-        span = div2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+        span = div2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if project_label == "matic_stargate":
-            span = div2.find_next("span", text=re.compile("\$\d+(?:\.\d+)?"))
+            span = div2.find_next("span", text=re.compile(r"\$\d+(?:\.\d+)?"))
         if not span:
             return ""
         result = span.text

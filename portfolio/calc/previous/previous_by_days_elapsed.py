@@ -1,5 +1,5 @@
 import sqlite3 as sl
-from portfolio.trades.net_trades import net_trades
+from portfolio.cli.net_trades import net_trades
 from portfolio.utils.config import db
 from portfolio.utils.dict_to_object import AttrDict
 from portfolio.utils.lib import named_tuple_factory

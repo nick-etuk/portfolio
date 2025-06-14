@@ -1,10 +1,7 @@
 README.md
 setup.py
-portfolio/backup_db.py
 portfolio/definitions.py
 portfolio/interest_rate_history.py
-portfolio/main.py
-portfolio/trade.py
 portfolio.egg-info/PKG-INFO
 portfolio.egg-info/SOURCES.txt
 portfolio.egg-info/dependency_links.txt

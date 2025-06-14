@@ -109,7 +109,8 @@ def extract_token_units(response: object, chain: str):
         if any(spam in symbol_name.lower() for spam in spam_indicators):
             # log(f"Spam: {symbol_name}")
             return None
-        valid_symbol_name = re.match("^[\w-]+$", symbol_name) is not None
+        valid_symbol_name = re.match(r"^[\w-]+$", symbol_name) is not None
+        # valid_symbol_name = True
         if not valid_symbol_name or symbol_name in excluded_symbols:
             # log(f"Invalid symbol {symbol}")
             return None
