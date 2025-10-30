@@ -11,9 +11,9 @@ if __name__ == "__main__":
     if args_len == 1:
         run_mode = "normal"
     elif args_len > 1:
-        args_list = ["normal", "retry", "reload", "dry_run", "report"]
+        args_list = ["normal", "retry", "reload", "dry_run", "fetch", "report"]
         if sys.argv[1] not in args_list:
-            error(f"Invalid argument: {sys.argv[1]}")
+            print(f"Invalid argument: {sys.argv[1]}")
             show_usage()
             sys.exit(1)
 
@@ -29,9 +29,8 @@ if __name__ == "__main__":
         reload_account = sys.argv[3]
 
     if not timestamp:
-        warn(f"No timestamp found for {run_id}. Using current timestamp {timestamp}")
+        print(f"No timestamp found for {run_id}. Using current timestamp {timestamp}")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     init(run_id)
-    log(f"Run mode {run_mode}, run_id {run_id}")
     fetch_data(run_mode, run_id, timestamp, reload_account)

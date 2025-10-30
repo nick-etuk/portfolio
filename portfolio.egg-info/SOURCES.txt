@@ -1,7 +1,9 @@
 README.md
 setup.py
+portfolio/cli_command.py
 portfolio/definitions.py
 portfolio/interest_rate_history.py
+portfolio/main.py
 portfolio.egg-info/PKG-INFO
 portfolio.egg-info/SOURCES.txt
 portfolio.egg-info/dependency_links.txt

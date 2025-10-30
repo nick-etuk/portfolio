@@ -35,6 +35,7 @@ def fetch_html(run_mode, run_id, reload_account=""):
 
 
 def fetch_data(run_mode, run_id, timestamp, reload_account=""):
+    log(f"Run mode {run_mode}, run_id {run_id}")
     if run_mode == "normal":
         get_manual_balances(run_id, timestamp)
         fetch_api(run_mode=run_mode, run_id=run_id, timestamp=timestamp)
