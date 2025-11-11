@@ -1,0 +1,6 @@
+{
+    "menu": "main",
+    "title": "SQLite backend development",
+    "shortName": "ps",
+    "steps":[ "activate_portfolio_virtual_env", "open_vscode" ]
+}

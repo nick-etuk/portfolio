@@ -79,8 +79,7 @@ dump.rdb
 
 # Environments
 .env
-.venv
-.venv-3.9.6
+/.venv*
 env/
 venv/
 ENV/
