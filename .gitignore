@@ -79,8 +79,7 @@ dump.rdb
 
 # Environments
 .env
-.venv
-.venv-3.9.6
+/.venv*
 env/
 venv/
 ENV/
@@ -93,5 +92,5 @@ redis_test.py
 *$py.class
 
 cypress/cypress/e2e/data
-portfolio.egg-info/
-portfolio.egg-info/PKG-INFO
+*.egg-info/
+

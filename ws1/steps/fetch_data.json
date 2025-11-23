@@ -1,0 +1,7 @@
+{
+    "id": "pf",
+    "title": "Fetch Portfolio data",
+    "menu": "main",
+    "steps":[ "activate_portfolio_virtual_env" ],
+    "newTab": "True"
+}
