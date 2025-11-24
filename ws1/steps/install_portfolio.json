@@ -1,0 +1,10 @@
+{
+    "checks": {
+        "win": ["cd $WS_CURRENT_PROJECT_ROOT/cypress && npm list | Select-String -pattern 'cypress'"]
+    },
+    "steps":[ 
+        "install_portfolio_virtual_env",
+        "install_portfolio_packages",
+        "install_cypress"
+    ]
+}
