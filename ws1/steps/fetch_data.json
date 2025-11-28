@@ -2,7 +2,6 @@
     "id": "pf",
     "title": "Fetch Portfolio data",
     "menu": "main",
-    "dependencies": ["install_portfolio"],
-    "steps":[ "activate_portfolio_virtual_env" ],
-    "newTab": "True"
+    "newTab": "True",
+    "steps":[ "activate_portfolio_virtual_env" ]
 }

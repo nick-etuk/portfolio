@@ -1,13 +1,17 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: portfolio
 Version: 0.0.1
 Summary: Portfolio tracker for crypto assets
 Home-page: http://asterlan.com
 Author: Nicholas Etuk
 Author-email: nick_etuk@hotmail.com
-License: UNKNOWN
 Keywords: crypto portfolio
-Platform: UNKNOWN
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: summary
 
 Portfolio tracker for cryto assets
 
@@ -43,5 +47,3 @@ python -m venv .venv
 pip install -r portfolio\requirements.txt
 
 pip install -e .
-
-

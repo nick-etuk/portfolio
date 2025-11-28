@@ -1,9 +1,12 @@
 {
+    "id": "pi",
+    "title": "Install Portfolio",
+    "menu": "main",
     "checks": {
-        "win": ["cd $WS_CURRENT_PROJECT_ROOT/cypress && npm list | Select-String -pattern 'cypress'"]
+        "win": ["cd $WS_ROOT_WIN/../portfolio/cypress && npm list | Select-String -pattern 'cypress'"]
     },
     "steps":[ 
-        "install_portfolio_virtual_env",
+        "create_portfolio_virtual_env",
         "install_portfolio_packages",
         "install_cypress"
     ]
